@@ -1,0 +1,206 @@
+// Esquema Prisma para PostgreSQL / Supabase - Vital Sur E-Commerce & CRM
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  COLLABORATOR
+}
+
+enum OrderStatus {
+  NUEVO
+  PAGO_PENDIENTE
+  PAGADO
+  EN_PREPARACION
+  DESPACHADO
+  ENTREGADO
+  CANCELADO
+}
+
+enum PaymentMethod {
+  MERCADO_PAGO
+  TRANSFERENCIA
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  role         UserRole @default(COLLABORATOR)
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Category {
+  id          String     @id @default(cuid())
+  name        String
+  slug        String     @unique
+  description String
+  iconName    String
+  order       Int        @default(0)
+  active      Boolean    @default(true)
+  parentId    String?
+  parent      Category?  @relation("CategoryToSubcategory", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryToSubcategory")
+  products    Product[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Product {
+  id                String          @id @default(cuid())
+  sku               String          @unique
+  name              String
+  slug              String          @unique
+  brand             String
+  shortDescription  String
+  description       String
+  usageInstructions String
+  price             Int             // Precio en ARS (ej: 34999)
+  salePrice         Int?            // Precio de oferta opcional en ARS
+  cost              Int             // Costo unitario en ARS para cálculo de ganancia
+  stock             Int             @default(0)
+  minStock          Int             @default(5)
+  active            Boolean         @default(true)
+  featured          Boolean         @default(false)
+  flavors           String[]        // Ej: ["Vainilla Austral", "Chocolate Suizo"]
+  sizes             String[]        // Ej: ["500g", "1kg"]
+  nutritionFacts    Json            // Porción, calorías, macros y micronutrientes
+  illustrationType  String          // Tipo de ilustración vectorial del envase
+  accentColor       String          @default("#2E9E6B")
+  categoryId        String
+  category          Category        @relation(fields: [categoryId], references: [id])
+  orderItems        OrderItem[]
+  stockMovements    StockMovement[]
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+}
+
+model Customer {
+  id          String   @id @default(cuid())
+  name        String
+  email       String   @unique
+  phone       String
+  dni         String?
+  address     String
+  city        String
+  province    String
+  postalCode  String
+  totalSpent  Int      @default(0)
+  ordersCount Int      @default(0)
+  notes       String   @default("")
+  tags        String[] // Ej: ["Frecuente", "Varela", "Entrenamiento"]
+  orders      Order[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Order {
+  id                  String        @id @default(cuid())
+  orderNumber         String        @unique // Ej: VS-1024
+  status              OrderStatus   @default(NUEVO)
+  paymentMethod       PaymentMethod
+  paymentReference    String?
+  subtotal            Int
+  discount            Int           @default(0)
+  couponCode          String?
+  shippingCost        Int           // $8.999 o $0 si supera $80.000
+  total               Int
+  estimatedCost       Int           @default(0)
+  trackingNumber      String        @default("") // Código Correo Argentino ej: CP849201928AR
+  internalNotes       String        @default("")
+  customerName        String
+  customerEmail       String
+  customerPhone       String
+  customerDni         String
+  shippingAddress     String
+  shippingCity        String
+  shippingProvince    String
+  shippingPostalCode  String
+  shippingNotes       String        @default("")
+  isUnread            Boolean       @default(true)
+  customerId          String
+  customer            Customer      @relation(fields: [customerId], references: [id])
+  items               OrderItem[]
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+}
+
+model OrderItem {
+  id           String  @id @default(cuid())
+  orderId      String
+  order        Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId    String
+  product      Product @relation(fields: [productId], references: [id])
+  productName  String
+  sku          String
+  flavor       String
+  size         String
+  quantity     Int
+  unitPrice    Int
+  unitCost     Int
+}
+
+model StockMovement {
+  id            String   @id @default(cuid())
+  productId     String
+  product       Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productName   String
+  sku           String
+  type          String   // "ENTRADA" | "SALIDA_VENTA" | "AJUSTE_MANUAL"
+  quantity      Int      // Positivo o negativo
+  previousStock Int
+  newStock      Int
+  reason        String
+  createdAt     DateTime @default(now())
+  createdBy     String
+}
+
+model Coupon {
+  id             String   @id @default(cuid())
+  code           String   @unique
+  description    String
+  discountType   String   // "PERCENTAGE" | "FIXED"
+  discountValue  Int      // Porcentaje (ej: 10) o monto ARS (ej: 5000)
+  minPurchase    Int      @default(0)
+  maxUses        Int      @default(100)
+  usedCount      Int      @default(0)
+  expiresAt      String
+  active         Boolean  @default(true)
+  createdAt      DateTime @default(now())
+}
+
+model StoreSettings {
+  id                    String   @id @default("default")
+  storeName             String   @default("Vital Sur")
+  tagline               String   @default("Suplementos deportivos y bienestar natural desde Florencio Varela")
+  address               String   @default("Florencio Varela, Zona Sur, Provincia de Buenos Aires (Tienda Online)")
+  phone                 String   @default("+54 9 11 3406-2942")
+  whatsappNumber        String   @default("5491134062942")
+  email                 String   @default("hola@vitalsur.com.ar")
+  instagram             String   @default("@vitalsur.suplementos")
+  facebook              String   @default("/vitalsur.varela")
+  shippingCost          Int      @default(8999)
+  freeShippingThreshold Int      @default(80000)
+  shippingCarrier       String   @default("Correo Argentino")
+  promoBannerText       String   @default("Envíos a todo el país por Correo Argentino | Envío GRATIS en compras superiores a $80.000")
+  heroTitle             String   @default("Energía limpia y nutrición real para superar tu propio límite")
+  heroSubtitle          String   @default("Suplementos deportivos y bienestar seleccionados en Florencio Varela, Zona Sur. Fórmulas puras, asesoramiento cercano y envíos a toda la Argentina.")
+  mpEnabled             Boolean  @default(true)
+  mpPublicKey           String   @default("TEST-8f92a3b0-41d2-4e89-9a1b-vitalsur2026")
+  transferEnabled       Boolean  @default(true)
+  transferDiscountPct   Int      @default(10)
+  bankAlias             String   @default("VITALSUR.VARELA.MP")
+  bankCbu               String   @default("0000003100084920192814")
+  bankHolder            String   @default("Vital Sur Nutrición S.R.L. - CUIT 30-71849201-9")
+  updatedAt             DateTime @updatedAt
+}
+

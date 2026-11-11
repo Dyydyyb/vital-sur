@@ -1,0 +1,132 @@
+{
+  "settings": {
+    "storeName": "Vital Sur",
+    "tagline": "Suplementos deportivos y bienestar natural desde Florencio Varela",
+    "address": "Florencio Varela, Zona Sur, Provincia de Buenos Aires (Tienda Online)",
+    "phone": "+54 9 11 3406-2942",
+    "whatsappNumber": "5491134062942",
+    "email": "hola@vitalsur.com.ar",
+    "instagram": "@vitalsur.suplementos",
+    "facebook": "/vitalsur.varela",
+    "shippingCost": 8999,
+    "freeShippingThreshold": 80000,
+    "shippingCarrier": "Correo Argentino",
+    "promoBannerText": "Envíos a todo el país por Correo Argentino | Envío GRATIS en compras superiores a $80.000",
+    "heroTitle": "Nutrición honesta y energía real para potenciar cada entrenamiento",
+    "heroSubtitle": "Somos tu tienda de suplementos deportivos y bienestar en Florencio Varela, Zona Sur. Fórmulas de pureza certificada, asesoramiento cercano y envíos a toda la Argentina.",
+    "mpEnabled": true,
+    "mpPublicKey": "TEST-8f92a3b0-41d2-4e89-9a1b-vitalsur2026",
+    "transferEnabled": true,
+    "transferDiscountPct": 10,
+    "bankAlias": "VITALSUR.VARELA.MP",
+    "bankCbu": "0000003100084920192814",
+    "bankHolder": "Vital Sur Nutrición S.R.L. - CUIT 30-71849201-9"
+  },
+  "categories": [
+    {
+      "id": "cat-proteinas",
+      "name": "Proteínas",
+      "slug": "proteinas",
+      "description": "Aislados y concentrados de alta biodisponibilidad para desarrollo y recuperación muscular.",
+      "iconName": "dumbbell",
+      "order": 1,
+      "active": true,
+      "parentId": null
+    },
+    {
+      "id": "cat-creatinas",
+      "name": "Creatinas y Fuerza",
+      "slug": "creatinas",
+      "description": "Creatina monohidratada micronizada de máxima pureza para potencia y rendimiento explosivo.",
+      "iconName": "zap",
+      "order": 2,
+      "active": true,
+      "parentId": null
+    },
+    {
+      "id": "cat-aminoacidos",
+      "name": "Aminoácidos",
+      "slug": "aminoacidos",
+      "description": "BCAA, EAA y L-Glutamina para proteger tus fibras musculares y acelerar la recuperación.",
+      "iconName": "activity",
+      "order": 3,
+      "active": true,
+      "parentId": null
+    },
+    {
+      "id": "cat-pre-entreno",
+      "name": "Pre-Entreno y Energía",
+      "slug": "pre-entreno",
+      "description": "Fórmulas con beta-alanina, citrulina y cafeína natural para entrenar con foco total.",
+      "iconName": "flame",
+      "order": 4,
+      "active": true,
+      "parentId": null
+    },
+    {
+      "id": "cat-vitaminas",
+      "name": "Vitaminas y Bienestar",
+      "slug": "vitaminas-salud",
+      "description": "Magnesio, Omega 3, colágeno hidrolizado y multivitamínicos para tu salud diaria.",
+      "iconName": "shield-plus",
+      "order": 5,
+      "active": true,
+      "parentId": null
+    },
+    {
+      "id": "cat-quemadores",
+      "name": "Definición y Metabolismo",
+      "slug": "quemadores",
+      "description": "Termogénicos naturales con té verde, L-carnitina y guaraná para acompañar tu plan nutricional.",
+      "iconName": "heart-pulse",
+      "order": 6,
+      "active": true,
+      "parentId": null
+    },
+    {
+      "id": "cat-accesorios",
+      "name": "Accesorios y Combos",
+      "slug": "accesorios",
+      "description": "Shakers libres de BPA, cintas de agarre y accesorios deportivos.",
+      "iconName": "cup-soda",
+      "order": 7,
+      "active": true,
+      "parentId": null
+    },
+    {
+      "id": "subcat-whey",
+      "name": "Whey Protein Concentrada e Isolada",
+      "slug": "whey-protein",
+      "description": "Proteínas de suero lácteo de rápida absorción.",
+      "iconName": "dumbbell",
+      "order": 1,
+      "active": true,
+      "parentId": "cat-proteinas"
+    },
+    {
+      "id": "subcat-plant",
+      "name": "Proteínas Vegetales",
+      "slug": "proteina-vegetal",
+      "description": "Fórmulas a base de arveja y arroz orgánico aptas para veganos.",
+      "iconName": "leaf",
+      "order": 2,
+      "active": true,
+      "parentId": "cat-proteinas"
+    },
+    {
+      "id": "subcat-creatina-micro",
+      "name": "Creatina Monohidrato 200 Mesh",
+      "slug": "creatina-micronizada",
+      "description": "Disolución instantánea y pureza de laboratorio.",
+      "iconName": "sparkles",
+      "order": 1,
+      "active": true,
+      "parentId": "cat-creatinas"
+    }
+  ],
+  "products": [],
+  "orders": [],
+  "customers": [],
+  "stockMovements": [],
+  "coupons": []
+}

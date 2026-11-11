@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 52" fill="none">
+  <!-- Isotipo -->
+  <g transform="translate(2, 2)">
+    <rect x="0" y="0" width="48" height="48" rx="14" fill="#F6FAF8" stroke="#DCE8E2" stroke-width="1.25"/>
+    <path d="M10 33C14.5 28 19.5 26 24 26C28.5 26 33.5 28 38 33" stroke="#7CC4E8" stroke-width="3.2" stroke-linecap="round"/>
+    <path d="M13.5 38C17 35 20.5 34 24 34C27.5 34 31 35 34.5 38" stroke="#52A8D4" stroke-width="2" stroke-linecap="round"/>
+    <path d="M24 34V16C24 11 29 8 36 9C36 17 31.5 23 24 24Z" fill="#2E9E6B"/>
+    <path d="M24 29C18 28.2 14 23.5 14 17.5C19.5 17 23 20.2 24 25.5Z" fill="#3BB57E" opacity="0.8"/>
+    <path d="M24 35V15" stroke="#1A5E3F" stroke-width="2" stroke-linecap="round"/>
+    <circle cx="24" cy="10.5" r="2" fill="#2E9E6B"/>
+  </g>
+  <!-- Logotipo tipográfico -->
+  <text x="62" y="29" font-family="Plus Jakarta Sans, system-ui, -apple-system, sans-serif" font-size="22" font-weight="800" letter-spacing="-0.02em" fill="#1F2D2A">
+    VITAL <tspan fill="#2E9E6B">SUR</tspan>
+  </text>
+  <text x="63" y="42" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="8.5" font-weight="700" letter-spacing="0.18em" fill="#526660">
+    NUTRICIÓN Y BIENESTAR
+  </text>
+</svg>
