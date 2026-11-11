@@ -34,6 +34,36 @@
       "parentId": null
     },
     {
+      "id": "subcat-whey",
+      "name": "Whey Protein Concentrada e Isolada",
+      "slug": "whey-protein",
+      "description": "Proteínas de suero lácteo de rápida absorción.",
+      "iconName": "dumbbell",
+      "order": 1,
+      "active": true,
+      "parentId": "cat-proteinas"
+    },
+    {
+      "id": "subcat-creatina-micro",
+      "name": "Creatina Monohidrato 200 Mesh",
+      "slug": "creatina-micronizada",
+      "description": "Disolución instantánea y pureza de laboratorio.",
+      "iconName": "sparkles",
+      "order": 1,
+      "active": true,
+      "parentId": "cat-creatinas"
+    },
+    {
+      "id": "subcat-plant",
+      "name": "Proteínas Vegetales",
+      "slug": "proteina-vegetal",
+      "description": "Fórmulas a base de arveja y arroz orgánico aptas para veganos.",
+      "iconName": "leaf",
+      "order": 2,
+      "active": true,
+      "parentId": "cat-proteinas"
+    },
+    {
       "id": "cat-creatinas",
       "name": "Creatinas y Fuerza",
       "slug": "creatinas",
@@ -92,39 +122,45 @@
       "order": 7,
       "active": true,
       "parentId": null
-    },
-    {
-      "id": "subcat-whey",
-      "name": "Whey Protein Concentrada e Isolada",
-      "slug": "whey-protein",
-      "description": "Proteínas de suero lácteo de rápida absorción.",
-      "iconName": "dumbbell",
-      "order": 1,
-      "active": true,
-      "parentId": "cat-proteinas"
-    },
-    {
-      "id": "subcat-plant",
-      "name": "Proteínas Vegetales",
-      "slug": "proteina-vegetal",
-      "description": "Fórmulas a base de arveja y arroz orgánico aptas para veganos.",
-      "iconName": "leaf",
-      "order": 2,
-      "active": true,
-      "parentId": "cat-proteinas"
-    },
-    {
-      "id": "subcat-creatina-micro",
-      "name": "Creatina Monohidrato 200 Mesh",
-      "slug": "creatina-micronizada",
-      "description": "Disolución instantánea y pureza de laboratorio.",
-      "iconName": "sparkles",
-      "order": 1,
-      "active": true,
-      "parentId": "cat-creatinas"
     }
   ],
-  "products": [],
+  "products": [
+    {
+      "id": "prod-test-supabase-1",
+      "sku": "VS-TEST-001",
+      "name": "Creatina Monohidrato 100% Pura Test",
+      "slug": "creatina-monohidrato-pura-test",
+      "brand": "Vital Sur Lab",
+      "categoryId": "cat-creatinas",
+      "shortDescription": "Fórmula de prueba en Supabase",
+      "description": "Descripción completa",
+      "usageInstructions": "5g diarios",
+      "price": 35000,
+      "salePrice": 29999,
+      "cost": 16000,
+      "stock": 25,
+      "minStock": 5,
+      "active": true,
+      "featured": true,
+      "flavors": [
+        "Neutro"
+      ],
+      "sizes": [
+        "300g"
+      ],
+      "nutritionFacts": {
+        "servingSize": "5g",
+        "servingsPerContainer": 60,
+        "rows": [],
+        "ingredients": "Creatina pura",
+        "allergens": "Sin TACC"
+      },
+      "illustrationType": "creatine-tub",
+      "accentColor": "#2E9E6B",
+      "soldCount": 0,
+      "createdAt": "2026-11-11T03:36:25.382Z"
+    }
+  ],
   "orders": [],
   "customers": [],
   "stockMovements": [],

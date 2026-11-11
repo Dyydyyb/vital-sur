@@ -271,27 +271,16 @@ ALTER TABLE public.stock_movements ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.coupons ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.staff_users ENABLE ROW LEVEL SECURITY;
 
--- Políticas de lectura pública para la tienda
-CREATE POLICY "Public Read Store Settings" ON public.store_settings FOR SELECT USING (true);
-CREATE POLICY "Public Read Active Categories" ON public.categories FOR SELECT USING (active = true);
-CREATE POLICY "Public Read Active Products" ON public.products FOR SELECT USING (active = true);
-CREATE POLICY "Public Read Active Coupons" ON public.coupons FOR SELECT USING (active = true);
-
--- Políticas de inserción pública en checkout
-CREATE POLICY "Public Insert Orders" ON public.orders FOR INSERT WITH CHECK (true);
-CREATE POLICY "Public Insert Order Items" ON public.order_items FOR INSERT WITH CHECK (true);
-CREATE POLICY "Public Insert Customers" ON public.customers FOR INSERT WITH CHECK (true);
-
--- Permisos totales para service_role (Panel Admin / API Server)
-CREATE POLICY "Service Role Full Access Store Settings" ON public.store_settings USING (auth.role() = 'service_role') WITH CHECK (auth.role() = 'service_role');
-CREATE POLICY "Service Role Full Access Categories" ON public.categories USING (auth.role() = 'service_role') WITH CHECK (auth.role() = 'service_role');
-CREATE POLICY "Service Role Full Access Products" ON public.products USING (auth.role() = 'service_role') WITH CHECK (auth.role() = 'service_role');
-CREATE POLICY "Service Role Full Access Customers" ON public.customers USING (auth.role() = 'service_role') WITH CHECK (auth.role() = 'service_role');
-CREATE POLICY "Service Role Full Access Orders" ON public.orders USING (auth.role() = 'service_role') WITH CHECK (auth.role() = 'service_role');
-CREATE POLICY "Service Role Full Access Order Items" ON public.order_items USING (auth.role() = 'service_role') WITH CHECK (auth.role() = 'service_role');
-CREATE POLICY "Service Role Full Access Stock Movements" ON public.stock_movements USING (auth.role() = 'service_role') WITH CHECK (auth.role() = 'service_role');
-CREATE POLICY "Service Role Full Access Coupons" ON public.coupons USING (auth.role() = 'service_role') WITH CHECK (auth.role() = 'service_role');
-CREATE POLICY "Service Role Full Access Staff Users" ON public.staff_users USING (auth.role() = 'service_role') WITH CHECK (auth.role() = 'service_role');
+-- Políticas de acceso para anon, authenticated y service_role
+CREATE POLICY "Allow All Store Settings" ON public.store_settings FOR ALL TO anon, authenticated, service_role USING (true) WITH CHECK (true);
+CREATE POLICY "Allow All Categories" ON public.categories FOR ALL TO anon, authenticated, service_role USING (true) WITH CHECK (true);
+CREATE POLICY "Allow All Products" ON public.products FOR ALL TO anon, authenticated, service_role USING (true) WITH CHECK (true);
+CREATE POLICY "Allow All Customers" ON public.customers FOR ALL TO anon, authenticated, service_role USING (true) WITH CHECK (true);
+CREATE POLICY "Allow All Orders" ON public.orders FOR ALL TO anon, authenticated, service_role USING (true) WITH CHECK (true);
+CREATE POLICY "Allow All Order Items" ON public.order_items FOR ALL TO anon, authenticated, service_role USING (true) WITH CHECK (true);
+CREATE POLICY "Allow All Stock Movements" ON public.stock_movements FOR ALL TO anon, authenticated, service_role USING (true) WITH CHECK (true);
+CREATE POLICY "Allow All Coupons" ON public.coupons FOR ALL TO anon, authenticated, service_role USING (true) WITH CHECK (true);
+CREATE POLICY "Allow All Staff Users" ON public.staff_users FOR ALL TO anon, authenticated, service_role USING (true) WITH CHECK (true);
 
 -- ========================================================================
 -- 13. SEED INICIAL: CONFIGURACIÓN Y CATEGORÍAS (CERO PRODUCTOS MOCK)
