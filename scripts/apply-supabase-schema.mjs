@@ -4,8 +4,12 @@ import pg from "pg";
 
 const { Client } = pg;
 
+const connectionString =
+  process.env.SUPABASE_DB_URL ||
+  "postgresql://postgres:[PASSWORD]@db.kkpbhzcilnmbyrplssbz.supabase.co:5432/postgres";
+
 const client = new Client({
-  connectionString: "postgresql://postgres:1569957772Db!@db.kkpbhzcilnmbyrplssbz.supabase.co:5432/postgres",
+  connectionString,
   ssl: { rejectUnauthorized: false },
 });
 
