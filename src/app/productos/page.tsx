@@ -412,20 +412,22 @@ function CatalogContent() {
               />
               <h3 className="mt-4 font-display text-lg font-bold text-brand-ink">
                 {db.products.length === 0
-                  ? "Aún no hay productos cargados en la tienda"
+                  ? "Catálogo en actualización"
                   : "No encontramos productos con esos filtros"}
               </h3>
               <p className="mt-1 text-xs text-brand-ink-muted">
                 {db.products.length === 0
-                  ? "Podés ingresar al panel de administración para dar de alta productos o conectar tu base Supabase."
+                  ? "Estamos renovando nuestro stock disponible. Consultanos por WhatsApp para asesoramiento personalizado."
                   : "Probá ampliando el rango de precio o limpiando la búsqueda."}
               </p>
               {db.products.length === 0 ? (
                 <a
-                  href="/admin"
+                  href="https://wa.me/5491134062942?text=Hola%20Vital%20Sur%2C%20quiero%20consultar%20por%20suplementos%20disponibles."
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="mt-5 inline-flex items-center gap-2 rounded-pill bg-brand-green px-6 py-2.5 text-xs font-bold text-white hover:bg-brand-green-dark"
                 >
-                  Ir al Panel de Administración
+                  Consultar por WhatsApp
                 </a>
               ) : (
                 <button

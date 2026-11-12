@@ -541,18 +541,21 @@ export default function HomePage() {
                   <Package className="h-7 w-7" strokeWidth={1.75} />
                 </div>
                 <h3 className="font-display text-base font-bold text-brand-ink">
-                  Catálogo en preparación
+                  Catálogo en actualización
                 </h3>
                 <p className="mx-auto max-w-md text-xs text-brand-ink-muted">
-                  Podés dar de alta suplementos fácilmente desde el panel de administración o conectando tu base de datos Supabase.
+                  Estamos renovando nuestro stock con fórmulas de pureza certificada. Escribinos por WhatsApp para consultar disponibilidad o recibir asesoramiento sin cargo.
                 </p>
                 <div className="pt-2">
-                  <Link
-                    href="/admin"
+                  <a
+                    href="https://wa.me/5491134062942?text=Hola%20Vital%20Sur%2C%20quiero%20consultar%20por%20suplementos%20disponibles."
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 rounded-pill bg-brand-green px-5 py-2.5 text-xs font-bold text-white hover:bg-brand-green-dark transition-colors"
                   >
-                    <span>Gestionar en Panel Admin</span>
-                  </Link>
+                    <WhatsAppSvg className="h-4 w-4" />
+                    <span>Consultar por WhatsApp</span>
+                  </a>
                 </div>
               </div>
             )}

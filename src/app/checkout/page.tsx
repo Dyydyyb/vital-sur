@@ -197,11 +197,10 @@ export default function CheckoutPage() {
                 <span>Seguir explorando el catálogo</span>
               </Link>
               <Link
-                href="/admin"
+                href="/"
                 className="inline-flex items-center gap-2 rounded-pill border border-brand-border bg-white px-6 py-3 text-xs sm:text-sm font-bold text-brand-ink hover:border-brand-green"
               >
-                <Package className="h-4 w-4 text-brand-green" />
-                <span>Ver pedido en el Panel CRM</span>
+                <span>Volver al inicio</span>
               </Link>
             </div>
           </div>
