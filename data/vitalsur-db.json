@@ -124,43 +124,7 @@
       "parentId": null
     }
   ],
-  "products": [
-    {
-      "id": "prod-test-supabase-1",
-      "sku": "VS-TEST-001",
-      "name": "Creatina Monohidrato 100% Pura Test",
-      "slug": "creatina-monohidrato-pura-test",
-      "brand": "Vital Sur Lab",
-      "categoryId": "cat-creatinas",
-      "shortDescription": "Fórmula de prueba en Supabase",
-      "description": "Descripción completa",
-      "usageInstructions": "5g diarios",
-      "price": 35000,
-      "salePrice": 29999,
-      "cost": 16000,
-      "stock": 25,
-      "minStock": 5,
-      "active": true,
-      "featured": true,
-      "flavors": [
-        "Neutro"
-      ],
-      "sizes": [
-        "300g"
-      ],
-      "nutritionFacts": {
-        "servingSize": "5g",
-        "servingsPerContainer": 60,
-        "rows": [],
-        "ingredients": "Creatina pura",
-        "allergens": "Sin TACC"
-      },
-      "illustrationType": "creatine-tub",
-      "accentColor": "#2E9E6B",
-      "soldCount": 0,
-      "createdAt": "2026-11-11T03:36:25.382Z"
-    }
-  ],
+  "products": [],
   "orders": [],
   "customers": [],
   "stockMovements": [],

@@ -17,7 +17,6 @@ import {
   CheckCircle2,
   MapPin,
   Download,
-  Sparkles,
   Quote,
   Package,
 } from "lucide-react";
@@ -28,6 +27,19 @@ import { CategoryIcon, WhatsAppSvg } from "@/components/brand/CategoryIcon";
 import { VitalSurLogo } from "@/components/brand/VitalSurLogo";
 import { useVitalSur } from "@/context/VitalSurContext";
 import { formatARS } from "@/lib/format";
+
+const HERO_SLIDES = [
+  {
+    id: "slide-1",
+    image: "/images/hero/hero-slide-1.jpg",
+    alt: "Línea completa de suplementos deportivos y bienestar Vital Sur en Florencio Varela",
+  },
+  {
+    id: "slide-2",
+    image: "/images/hero/hero-slide-2.jpg",
+    alt: "Disciplina, salud y nutrición inteligente - Vital Sur Zona Sur",
+  },
+];
 
 const TESTIMONIALS = [
   {
@@ -107,6 +119,29 @@ export default function HomePage() {
   const [testimonialIndex, setTestimonialIndex] = useState(0);
   const [isTestimonialPaused, setIsTestimonialPaused] = useState(false);
 
+  // Estado del Slider de Hero
+  const [heroSlideIndex, setHeroSlideIndex] = useState(0);
+  const [isHeroPaused, setIsHeroPaused] = useState(false);
+
+  // Autoplay para el Hero Slider
+  useEffect(() => {
+    if (isHeroPaused) return;
+    const interval = setInterval(() => {
+      setHeroSlideIndex((prev) => (prev + 1) % HERO_SLIDES.length);
+    }, 6000);
+    return () => clearInterval(interval);
+  }, [isHeroPaused]);
+
+  const handleNextHeroSlide = () => {
+    setHeroSlideIndex((prev) => (prev + 1) % HERO_SLIDES.length);
+  };
+
+  const handlePrevHeroSlide = () => {
+    setHeroSlideIndex(
+      (prev) => (prev - 1 + HERO_SLIDES.length) % HERO_SLIDES.length
+    );
+  };
+
   // Referencias para scrolls horizontales fluidos
   const categoriesScrollRef = useRef<HTMLDivElement | null>(null);
   const productsScrollRef = useRef<HTMLDivElement | null>(null);
@@ -175,33 +210,58 @@ export default function HomePage() {
         {/* =========================================================
             1. HERO A PANTALLA COMPLETA (100svh exactos, adaptado a laptops y móviles)
            ========================================================= */}
+        {/* =========================================================
+            1. HERO A PANTALLA COMPLETA (100svh exactos, slider de imágenes borde a borde)
+           ========================================================= */}
         <section
           aria-label="Presentación principal de Vital Sur"
-          className="relative h-[100svh] min-h-[100svh] max-h-[100svh] w-full overflow-hidden bg-brand-surface flex flex-col justify-between pt-20 lg:pt-24 pb-3 sm:pb-4 px-4 sm:px-6 lg:px-8"
+          className="relative h-[100svh] min-h-[100svh] max-h-[100svh] w-full overflow-hidden flex flex-col justify-between pt-20 lg:pt-24 pb-3 sm:pb-4 px-4 sm:px-6 lg:px-8 select-none"
+          onMouseEnter={() => setIsHeroPaused(true)}
+          onMouseLeave={() => setIsHeroPaused(false)}
         >
-          {/* Ondas orgánicas vectoriales de fondo */}
-          <svg
-            aria-hidden="true"
-            viewBox="0 0 1440 800"
-            fill="none"
-            className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-75"
-            preserveAspectRatio="none"
-          >
-            <path
-              d="M-100 620C220 510 480 690 840 580C1140 488 1320 540 1540 460V820H-100V620Z"
-              fill="#EDF5F1"
-            />
-            <path
-              d="M980 -60C1180 60 1320 240 1460 190V-60H980Z"
-              fill="#EBF6FC"
-            />
-            <circle cx="1140" cy="340" r="240" fill="#E7F6EF" fillOpacity="0.65" />
-          </svg>
+          {/* Slider de imágenes de borde a borde */}
+          <div className="absolute inset-0 w-full h-full overflow-hidden">
+            {HERO_SLIDES.map((slide, idx) => (
+              <div
+                key={slide.id}
+                className={`absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out ${
+                  idx === heroSlideIndex
+                    ? "opacity-100 z-0"
+                    : "opacity-0 -z-10 pointer-events-none"
+                }`}
+              >
+                <img
+                  src={slide.image}
+                  alt={slide.alt}
+                  className="w-full h-full object-cover object-center"
+                />
+                <div className="absolute inset-0 bg-brand-white/40 backdrop-brightness-[0.98]" />
+              </div>
+            ))}
+          </div>
 
-          {/* Contenido central del Hero */}
-          <div className="relative z-10 mx-auto my-auto grid w-full max-w-7xl grid-cols-1 items-center gap-6 lg:grid-cols-12">
-            {/* Columna Izquierda: Mensaje y llamadas a la acción */}
-            <div className="lg:col-span-7 space-y-3 sm:space-y-4 animate-fade-slide">
+          {/* Flechas de navegación del Slider (borde a borde) */}
+          <button
+            type="button"
+            onClick={handlePrevHeroSlide}
+            aria-label="Imagen anterior"
+            className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-20 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-white/85 hover:bg-white text-brand-ink hover:text-brand-green border border-brand-border shadow-soft backdrop-blur-md transition-all duration-200 hover:scale-105"
+          >
+            <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" strokeWidth={2.2} />
+          </button>
+
+          <button
+            type="button"
+            onClick={handleNextHeroSlide}
+            aria-label="Siguiente imagen"
+            className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-20 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-white/85 hover:bg-white text-brand-ink hover:text-brand-green border border-brand-border shadow-soft backdrop-blur-md transition-all duration-200 hover:scale-105"
+          >
+            <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" strokeWidth={2.2} />
+          </button>
+
+          {/* Contenido central del Hero: Centrado, legible y sin el cuadro anterior */}
+          <div className="relative z-10 mx-auto my-auto flex w-full max-w-3xl flex-col items-center justify-center">
+            <div className="w-full rounded-card-lg bg-white/90 backdrop-blur-md border border-brand-border/70 p-5 sm:p-7 md:p-8 shadow-soft-lg text-center flex flex-col items-center justify-center space-y-3 sm:space-y-4 animate-fade-slide">
               <div className="inline-flex items-center gap-2 rounded-pill bg-white border border-brand-border px-3.5 py-1 shadow-soft">
                 <span className="h-2 w-2 rounded-full bg-brand-green animate-pulse" />
                 <span className="text-[11px] sm:text-xs font-bold tracking-wide text-brand-ink">
@@ -209,19 +269,19 @@ export default function HomePage() {
                 </span>
               </div>
 
-              <h1 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-[46px] xl:text-[52px] font-extrabold tracking-tight text-brand-ink leading-[1.1]">
+              <h1 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-[44px] font-extrabold tracking-tight text-brand-ink leading-[1.15]">
                 {db.settings.heroTitle.split("energía real")[0]}
                 <span className="text-brand-green">energía real</span>
                 {db.settings.heroTitle.split("energía real")[1] ||
                   " para potenciar cada entrenamiento"}
               </h1>
 
-              <p className="max-w-xl text-xs sm:text-sm lg:text-base text-brand-ink-muted leading-relaxed">
+              <p className="max-w-2xl text-xs sm:text-sm lg:text-base text-brand-ink-muted leading-relaxed">
                 {db.settings.heroSubtitle}
               </p>
 
               {/* Botones tipo píldora */}
-              <div className="flex flex-wrap items-center gap-3 pt-1">
+              <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
                 <Link
                   href="/productos"
                   className="inline-flex items-center justify-center gap-2 rounded-pill bg-brand-green px-6 sm:px-7 py-3 text-xs sm:text-sm font-bold text-white shadow-soft transition-all duration-200 ease-natural hover:bg-brand-green-dark hover:-translate-y-0.5"
@@ -238,7 +298,7 @@ export default function HomePage() {
               </div>
 
               {/* Indicadores horizontales rápidos */}
-              <div className="grid grid-cols-3 gap-3 pt-2 max-w-lg border-t border-brand-border/80">
+              <div className="grid grid-cols-3 gap-3 pt-2 max-w-lg w-full border-t border-brand-border/80">
                 <div>
                   <p className="font-display text-base sm:text-lg font-extrabold text-brand-ink">
                     100% Puros
@@ -265,117 +325,30 @@ export default function HomePage() {
                 </div>
               </div>
             </div>
-
-            {/* Columna Derecha: Composición Vectorial equilibrada */}
-            <div className="hidden lg:flex lg:col-span-5 items-center justify-center relative">
-              <div className="relative w-full max-w-[420px] rounded-card-lg bg-white p-5 border border-brand-border shadow-soft-md animate-float-gentle">
-                <div className="flex items-center justify-between pb-2.5 border-b border-brand-border/60">
-                  <div className="flex items-center gap-2">
-                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-brand-green-soft text-brand-green-dark">
-                      <Sparkles className="h-3.5 w-3.5" strokeWidth={2} />
-                    </span>
-                    <span className="text-xs font-bold text-brand-ink">
-                      Fórmulas Vital Sur Lab
-                    </span>
-                  </div>
-                  <span className="rounded-pill bg-brand-blue-light px-2.5 py-0.5 text-[10px] font-bold text-brand-blue-dark">
-                    Pureza Certificada
-                  </span>
-                </div>
-
-                <div className="relative my-2.5 flex items-center justify-center bg-brand-surface rounded-card p-3 overflow-hidden">
-                  <svg
-                    viewBox="0 0 360 210"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="w-full h-auto max-h-[180px]"
-                    aria-label="Composición vectorial de suplementos Vital Sur"
-                  >
-                    <circle cx="180" cy="110" r="75" fill="#E7F6EF" />
-                    <path
-                      d="M36 160C92 130 148 124 192 134C236 144 284 138 328 116"
-                      stroke="#7CC4E8"
-                      strokeWidth="3.5"
-                      strokeLinecap="round"
-                    />
-                    <path
-                      d="M52 176C108 154 162 150 208 158C254 166 292 160 320 144"
-                      stroke="#52A8D4"
-                      strokeWidth="2.2"
-                      strokeLinecap="round"
-                    />
-
-                    {/* Whey Protein */}
-                    <g transform="translate(88, 16)">
-                      <rect x="18" y="6" width="68" height="16" rx="5" fill="#1F2D2A" />
-                      <rect
-                        x="10"
-                        y="22"
-                        width="84"
-                        height="136"
-                        rx="16"
-                        fill="#FFFFFF"
-                        stroke="#1F2D2A"
-                        strokeWidth="2"
-                      />
-                      <rect x="12" y="46" width="80" height="78" fill="#2E9E6B" fillOpacity="0.14" />
-                      <rect x="12" y="46" width="80" height="5" fill="#2E9E6B" />
-                      <circle cx="52" cy="70" r="11" fill="#FFFFFF" stroke="#2E9E6B" strokeWidth="2" />
-                      <path
-                        d="M52 77V64C52 61 56 59 60 60C60 65 56 69 52 69"
-                        fill="#2E9E6B"
-                      />
-                      <rect x="26" y="90" width="52" height="6" rx="3" fill="#1F2D2A" />
-                      <rect x="34" y="101" width="36" height="4.5" rx="2.2" fill="#2E9E6B" />
-                    </g>
-
-                    {/* Creatina */}
-                    <g transform="translate(188, 50)">
-                      <rect x="14" y="6" width="60" height="14" rx="4" fill="#1F2D2A" />
-                      <rect
-                        x="8"
-                        y="20"
-                        width="72"
-                        height="102"
-                        rx="14"
-                        fill="#FFFFFF"
-                        stroke="#1F2D2A"
-                        strokeWidth="2"
-                      />
-                      <rect x="10" y="40" width="68" height="54" fill="#7CC4E8" fillOpacity="0.22" />
-                      <rect x="10" y="40" width="68" height="4" fill="#52A8D4" />
-                      <circle cx="44" cy="60" r="8" fill="#2E9E6B" />
-                      <rect x="22" y="74" width="44" height="5" rx="2.5" fill="#1F2D2A" />
-                    </g>
-                  </svg>
-                </div>
-
-                <div className="flex items-center justify-between gap-3 rounded-2xl bg-brand-surface p-2.5 border border-brand-border/80">
-                  <div className="truncate">
-                    <p className="text-xs font-extrabold text-brand-ink truncate">
-                      Línea Vital Sur Lab
-                    </p>
-                    <p className="text-[11px] text-brand-ink-muted">
-                      Pureza Certificada &amp; Sin TACC
-                    </p>
-                  </div>
-                  <Link
-                    href="/productos"
-                    className="rounded-pill bg-brand-green px-3 py-1.5 text-xs font-bold text-white hover:bg-brand-green-dark transition-colors shrink-0"
-                  >
-                    Ver catálogo
-                  </Link>
-                </div>
-              </div>
-            </div>
           </div>
 
-          {/* Indicador animado de scroll hacia abajo */}
-          <div className="relative z-10 mx-auto flex flex-col items-center justify-center">
+          {/* Controles inferiores del Slider e indicador animado de scroll */}
+          <div className="relative z-10 mx-auto flex flex-col items-center gap-2">
+            <div className="flex items-center gap-2">
+              {HERO_SLIDES.map((_, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => setHeroSlideIndex(idx)}
+                  aria-label={`Ir al slide ${idx + 1}`}
+                  className={`h-2 rounded-full transition-all duration-300 ${
+                    idx === heroSlideIndex
+                      ? "w-8 bg-brand-green"
+                      : "w-2.5 bg-brand-ink/25 hover:bg-brand-green/60"
+                  }`}
+                />
+              ))}
+            </div>
+
             <a
               href="#categorias"
               aria-label="Desplazarse a las categorías"
-              className="group inline-flex flex-col items-center gap-1 text-[11px] font-semibold text-brand-ink-muted hover:text-brand-green transition-colors"
+              className="group inline-flex flex-col items-center gap-1 text-[11px] font-semibold text-brand-ink-muted hover:text-brand-green transition-colors mt-0.5"
             >
               <span>Explorar líneas</span>
               <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white border border-brand-border shadow-soft animate-scroll-indicator group-hover:border-brand-green">
