@@ -23,7 +23,7 @@ import {
   PaymentMethod,
 } from "@/lib/types";
 import { useVitalSur } from "@/context/VitalSurContext";
-import { formatARS, formatDateAR, formatDateTimeAR } from "@/lib/format";
+import { formatARS, formatDateAR, formatDateTimeAR, escapeCsvCell } from "@/lib/format";
 import { CategoryIcon } from "@/components/brand/CategoryIcon";
 import { ORDER_STATUS_META } from "./OrdersModule";
 
@@ -390,20 +390,22 @@ export function SalesModule() {
       "GananciaEstimadaARS",
       "SeguimientoCorreoArgentino",
     ];
-    const rows = filteredSales.map((o) => [
-      o.orderNumber,
-      formatDateAR(o.createdAt),
-      `"${o.customerName}"`,
-      `"${o.shippingCity}"`,
-      o.status,
-      o.paymentMethod,
-      o.subtotal,
-      o.shippingCost,
-      o.total,
-      o.estimatedCost,
-      o.total - o.estimatedCost,
-      o.trackingNumber || "PENDIENTE",
-    ]);
+    const rows = filteredSales.map((o) =>
+      [
+        o.orderNumber,
+        formatDateAR(o.createdAt),
+        o.customerName,
+        o.shippingCity,
+        o.status,
+        o.paymentMethod,
+        o.subtotal,
+        o.shippingCost,
+        o.total,
+        o.estimatedCost,
+        o.total - o.estimatedCost,
+        o.trackingNumber || "PENDIENTE",
+      ].map(escapeCsvCell)
+    );
 
     const csv =
       "\uFEFF" + [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");

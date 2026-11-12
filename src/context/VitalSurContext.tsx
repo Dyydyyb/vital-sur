@@ -76,15 +76,17 @@ interface VitalSurContextValue {
     quantity: number
   ) => void;
   clearCart: () => void;
-  applyCouponCode: (code: string) => { ok: boolean; message: string };
+  applyCouponCode: (code: string) => Promise<{ ok: boolean; message: string }>;
   removeCoupon: () => void;
   // Checkout
   createOrder: (input: CreateOrderInput) => Promise<Order>;
   // Autenticación CRM
   currentUser: StaffUser | null;
-  loginStaff: (email: string, password: string) => { ok: boolean; message: string };
-  quickLoginRole: (role: "ADMIN" | "COLLABORATOR") => void;
-  logoutStaff: () => void;
+  loginStaff: (
+    email: string,
+    password: string
+  ) => Promise<{ ok: boolean; message: string }>;
+  logoutStaff: () => Promise<void>;
   // Acciones CRM
   unreadOrdersCount: number;
   updateOrderStatus: (orderId: string, status: OrderStatus) => Promise<void>;
@@ -126,26 +128,6 @@ const VitalSurContext = createContext<VitalSurContextValue | undefined>(undefine
 
 const CART_STORAGE_KEY = "vital_sur_cart_v1";
 const COUPON_STORAGE_KEY = "vital_sur_coupon_v1";
-const STAFF_STORAGE_KEY = "vital_sur_staff_session_v1";
-
-export const DEMO_STAFF_USERS: Record<string, StaffUser & { password: string }> = {
-  "admin@vitalsur.com.ar": {
-    id: "staff-admin",
-    name: "Martín Morales",
-    email: "admin@vitalsur.com.ar",
-    role: "ADMIN",
-    roleLabel: "Administrador General",
-    password: "admin123",
-  },
-  "colaborador@vitalsur.com.ar": {
-    id: "staff-colab",
-    name: "Sofía Duarte",
-    email: "colaborador@vitalsur.com.ar",
-    role: "COLLABORATOR",
-    roleLabel: "Colaboradora (Despacho y Stock)",
-    password: "varela123",
-  },
-};
 
 export function VitalSurProvider({ children }: { children: React.ReactNode }) {
   const [db, setDb] = useState<DatabaseState>(INITIAL_DB_STATE);
@@ -200,14 +182,28 @@ export function VitalSurProvider({ children }: { children: React.ReactNode }) {
       if (savedCart) {
         setCart(JSON.parse(savedCart));
       }
-      const savedStaff = localStorage.getItem(STAFF_STORAGE_KEY);
-      if (savedStaff) {
-        setCurrentUser(JSON.parse(savedStaff));
-      }
     } catch {
       // Ignorar errores de parseo en almacenamiento local
     }
-    fetchServerDb().finally(() => setIsHydrated(true));
+
+    Promise.all([
+      fetch("/api/auth/session", { cache: "no-store" })
+        .then((r) => (r.ok ? r.json() : { user: null }))
+        .then((data) => {
+          if (data?.user) setCurrentUser(data.user);
+        })
+        .catch(() => {}),
+      fetchServerDb(),
+    ]).finally(() => setIsHydrated(true));
+  }, [fetchServerDb]);
+
+  // Re-sincronizar con Supabase al volver a enfocar la pestaña
+  useEffect(() => {
+    const handleFocus = () => {
+      fetchServerDb();
+    };
+    window.addEventListener("focus", handleFocus);
+    return () => window.removeEventListener("focus", handleFocus);
   }, [fetchServerDb]);
 
   // Persistencia de carrito entre sesiones
@@ -240,29 +236,58 @@ export function VitalSurProvider({ children }: { children: React.ReactNode }) {
   }, [showToast]);
 
   const persistState = useCallback(
-    async (nextState: DatabaseState, orderCreatedNumber?: string) => {
+    async (
+      nextState: DatabaseState,
+      orderCreatedNumber?: string
+    ): Promise<boolean> => {
+      const previousState = db;
       setDb(nextState);
       try {
+        const res = await fetch("/api/store", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ state: nextState }),
+        });
+
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          setDb(previousState);
+          showToast(
+            "No se pudo guardar el cambio",
+            errData?.error || "Error de sincronización con Supabase.",
+            "warning"
+          );
+          return false;
+        }
+
+        const authoritativeState = (await res.json()) as DatabaseState;
+        if (authoritativeState && authoritativeState.products) {
+          setDb(authoritativeState);
+        }
+
         if (typeof window !== "undefined" && "BroadcastChannel" in window) {
           const channel = new BroadcastChannel("vital_sur_realtime");
           channel.postMessage({
             type: "DB_UPDATED",
-            payload: nextState,
+            payload: authoritativeState || nextState,
             orderCreated: Boolean(orderCreatedNumber),
             orderNumber: orderCreatedNumber,
           });
           channel.close();
         }
-        await fetch("/api/store", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ state: nextState }),
-        });
+        return true;
       } catch (err) {
         console.error("Error guardando en servidor:", err);
+        setDb(previousState);
+        showToast(
+          "Error de conexión",
+          "No pudimos sincronizar con Supabase. Intentá nuevamente.",
+          "warning"
+        );
+        return false;
       }
     },
-    []
+    [db, showToast]
   );
 
   // Cálculos del carrito y envíos
@@ -413,279 +438,131 @@ export function VitalSurProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const applyCouponCode = useCallback(
-    (code: string) => {
+    async (code: string) => {
       const normalized = code.trim().toUpperCase();
       if (!normalized) {
         return { ok: false, message: "Ingresá un código de cupón válido." };
       }
-      const found = db.coupons.find(
-        (c) => c.code.toUpperCase() === normalized && c.active
-      );
-      if (!found) {
+      try {
+        const res = await fetch("/api/coupons/validate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code: normalized, subtotal: cartSubtotal }),
+        });
+        const data = await res.json();
+        if (!res.ok || !data?.ok || !data?.coupon) {
+          return {
+            ok: false,
+            message: data?.message || "El cupón ingresado no existe o no está activo.",
+          };
+        }
+        setAppliedCoupon(data.coupon as Coupon);
+        return {
+          ok: true,
+          message: data.message || `Cupón ${data.coupon.code} aplicado correctamente.`,
+        };
+      } catch {
         return {
           ok: false,
-          message: "El cupón ingresado no existe o no está activo.",
+          message: "No pudimos validar el cupón en este momento.",
         };
       }
-      if (found.usedCount >= found.maxUses) {
-        return {
-          ok: false,
-          message: "Este cupón ya alcanzó su límite máximo de usos.",
-        };
-      }
-      if (cartSubtotal < found.minPurchase) {
-        return {
-          ok: false,
-          message: `Este cupón requiere una compra mínima de $${found.minPurchase.toLocaleString("es-AR")}.`,
-        };
-      }
-      setAppliedCoupon(found);
-      return {
-        ok: true,
-        message: `Cupón ${found.code} aplicado correctamente.`,
-      };
     },
-    [db.coupons, cartSubtotal]
+    [cartSubtotal]
   );
 
   const removeCoupon = useCallback(() => {
     setAppliedCoupon(null);
   }, []);
 
-  // Creación de Pedido (Checkout -> CRM en tiempo real)
+  // Creación de Pedido (Checkout -> Servidor validado -> Supabase / CRM en tiempo real)
   const createOrder = useCallback(
     async (input: CreateOrderInput): Promise<Order> => {
-      const nextNumber = 1001 + db.orders.length;
-      const orderNumber = `VS-${nextNumber}`;
-      const now = new Date().toISOString();
-
-      const orderItems = cart.map((item, idx) => ({
-        id: `oi-${Date.now()}-${idx}`,
-        productId: item.productId,
-        sku: item.sku,
-        productName: item.name,
-        flavor: item.flavor,
-        size: item.size,
-        quantity: item.quantity,
-        unitPrice: item.unitPrice,
-        unitCost: item.unitCost,
-      }));
-
-      const estimatedCost = orderItems.reduce(
-        (acc, i) => acc + i.unitCost * i.quantity,
-        0
-      );
-
-      // Buscar o crear cliente
-      const existingCustomer = db.customers.find(
-        (c) => c.email.toLowerCase() === input.customerEmail.toLowerCase()
-      );
-      const customerId = existingCustomer
-        ? existingCustomer.id
-        : `cust-${Date.now()}`;
-
-      const updatedCustomers: Customer[] = existingCustomer
-        ? db.customers.map((c) =>
-            c.id === existingCustomer.id
-              ? {
-                  ...c,
-                  name: input.customerName,
-                  phone: input.customerPhone,
-                  dni: input.customerDni,
-                  address: input.shippingAddress,
-                  city: input.shippingCity,
-                  province: input.shippingProvince,
-                  postalCode: input.shippingPostalCode,
-                  totalSpent: c.totalSpent + cartTotal,
-                  ordersCount: c.ordersCount + 1,
-                  lastOrderAt: now,
-                }
-              : c
-          )
-        : [
-            {
-              id: customerId,
-              name: input.customerName,
-              email: input.customerEmail,
-              phone: input.customerPhone,
-              dni: input.customerDni,
-              address: input.shippingAddress,
-              city: input.shippingCity,
-              province: input.shippingProvince,
-              postalCode: input.shippingPostalCode,
-              totalSpent: cartTotal,
-              ordersCount: 1,
-              notes: "Cliente registrado desde la tienda online.",
-              tags: ["Tienda Web", input.shippingCity],
-              createdAt: now,
-              lastOrderAt: now,
-            },
-            ...db.customers,
-          ];
-
-      // Descontar stock y registrar movimientos de inventario
-      const newMovements: StockMovement[] = [];
-      const updatedProducts = db.products.map((product) => {
-        const boughtQty = cart
-          .filter((c) => c.productId === product.id)
-          .reduce((acc, c) => acc + c.quantity, 0);
-
-        if (boughtQty <= 0) return product;
-
-        const nextStock = Math.max(0, product.stock - boughtQty);
-        newMovements.push({
-          id: `mov-${Date.now()}-${product.id}`,
-          productId: product.id,
-          productName: product.name,
-          sku: product.sku,
-          type: "SALIDA_VENTA",
-          quantity: -boughtQty,
-          previousStock: product.stock,
-          newStock: nextStock,
-          reason: `Venta tienda online - Pedido #${orderNumber}`,
-          createdBy: "Checkout Web",
-          createdAt: now,
-        });
-
-        return {
-          ...product,
-          stock: nextStock,
-          soldCount: (product.soldCount || 0) + boughtQty,
-        };
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...input,
+          items: cart.map((item) => ({
+            productId: item.productId,
+            flavor: item.flavor,
+            size: item.size,
+            quantity: item.quantity,
+          })),
+          couponCode: appliedCoupon?.code || null,
+        }),
       });
+      const data = await res.json();
+      if (!res.ok || !data?.ok || !data?.order) {
+        const msg = data?.error || "No se pudo procesar el pedido.";
+        showToast("Error al confirmar el pedido", msg, "warning");
+        throw new Error(msg);
+      }
 
-      // Actualizar contador de cupón si aplica
-      const updatedCoupons = appliedCoupon
-        ? db.coupons.map((c) =>
-            c.id === appliedCoupon.id
-              ? { ...c, usedCount: c.usedCount + 1 }
-              : c
-          )
-        : db.coupons;
-
-      const defaultStatus: OrderStatus =
-        input.initialStatus ||
-        (input.paymentMethod === "mercado_pago" ? "pagado" : "pago_pendiente");
-
-      const newOrder: Order = {
-        id: `ord-${Date.now()}`,
-        orderNumber,
-        status: defaultStatus,
-        paymentMethod: input.paymentMethod,
-        paymentReference: input.paymentReference,
-        subtotal: cartSubtotal,
-        discount: cartDiscount,
-        couponCode: appliedCoupon?.code || null,
-        shippingCost: shippingInfo.shippingCost,
-        total: cartTotal,
-        estimatedCost,
-        trackingNumber: "",
-        internalNotes: "",
-        customerId,
-        customerName: input.customerName,
-        customerEmail: input.customerEmail,
-        customerPhone: input.customerPhone,
-        customerDni: input.customerDni,
-        shippingAddress: input.shippingAddress,
-        shippingCity: input.shippingCity,
-        shippingProvince: input.shippingProvince,
-        shippingPostalCode: input.shippingPostalCode,
-        shippingNotes: input.shippingNotes,
-        isUnread: true,
-        items: orderItems,
-        createdAt: now,
-        updatedAt: now,
-      };
-
-      const nextDb: DatabaseState = {
-        ...db,
-        products: updatedProducts,
-        customers: updatedCustomers,
-        orders: [newOrder, ...db.orders],
-        stockMovements: [...newMovements, ...db.stockMovements],
-        coupons: updatedCoupons,
-      };
-
-      await persistState(nextDb, orderNumber);
+      const createdOrder = data.order as Order;
+      await fetchServerDb();
+      try {
+        if (typeof BroadcastChannel !== "undefined") {
+          const channel = new BroadcastChannel("vital_sur_realtime");
+          channel.postMessage({
+            type: "DB_UPDATED",
+            orderCreated: createdOrder.orderNumber,
+          });
+          channel.close();
+        }
+      } catch {
+        // Ignorar si BroadcastChannel no está disponible
+      }
       clearCart();
-      return newOrder;
+      return createdOrder;
     },
-    [
-      db,
-      cart,
-      cartSubtotal,
-      cartDiscount,
-      cartTotal,
-      shippingInfo.shippingCost,
-      appliedCoupon,
-      persistState,
-      clearCart,
-    ]
+    [cart, appliedCoupon, fetchServerDb, clearCart, showToast]
   );
 
-  // Autenticación del CRM
+  // Autenticación del CRM (validada en servidor con cookie HttpOnly firmada)
   const loginStaff = useCallback(
-    (email: string, password: string) => {
-      const normalized = email.trim().toLowerCase();
-      const matched = DEMO_STAFF_USERS[normalized];
-      if (!matched || matched.password !== password) {
+    async (email: string, password: string) => {
+      try {
+        const res = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        });
+        const data = await res.json();
+        if (!res.ok || !data?.ok || !data?.user) {
+          return {
+            ok: false,
+            message:
+              data?.error || "Credenciales inválidas. Verificá tu correo y contraseña.",
+          };
+        }
+        const userObj = data.user as StaffUser;
+        setCurrentUser(userObj);
+        await fetchServerDb();
+        showToast(
+          `Hola de nuevo, ${userObj.name}`,
+          `Sesión iniciada como ${userObj.roleLabel}`
+        );
+        return { ok: true, message: "Ingreso exitoso" };
+      } catch {
         return {
           ok: false,
-          message:
-            "Credenciales inválidas. Verificá tu correo y contraseña o usá el acceso rápido de prueba.",
+          message: "No pudimos conectar con el servidor de autenticación.",
         };
       }
-      const userObj: StaffUser = {
-        id: matched.id,
-        name: matched.name,
-        email: matched.email,
-        role: matched.role,
-        roleLabel: matched.roleLabel,
-      };
-      setCurrentUser(userObj);
-      try {
-        localStorage.setItem(STAFF_STORAGE_KEY, JSON.stringify(userObj));
-      } catch {
-        // Ignorar
-      }
-      showToast(`Hola de nuevo, ${userObj.name}`, `Sesión iniciada como ${userObj.roleLabel}`);
-      return { ok: true, message: "Ingreso exitoso" };
     },
-    [showToast]
+    [fetchServerDb, showToast]
   );
 
-  const quickLoginRole = useCallback(
-    (role: "ADMIN" | "COLLABORATOR") => {
-      const target =
-        role === "ADMIN"
-          ? DEMO_STAFF_USERS["admin@vitalsur.com.ar"]
-          : DEMO_STAFF_USERS["colaborador@vitalsur.com.ar"];
-      const userObj: StaffUser = {
-        id: target.id,
-        name: target.name,
-        email: target.email,
-        role: target.role,
-        roleLabel: target.roleLabel,
-      };
-      setCurrentUser(userObj);
-      try {
-        localStorage.setItem(STAFF_STORAGE_KEY, JSON.stringify(userObj));
-      } catch {
-        // Ignorar
-      }
-      showToast(`Acceso activo: ${userObj.name}`, userObj.roleLabel);
-    },
-    [showToast]
-  );
-
-  const logoutStaff = useCallback(() => {
-    setCurrentUser(null);
+  const logoutStaff = useCallback(async () => {
     try {
-      localStorage.removeItem(STAFF_STORAGE_KEY);
+      await fetch("/api/auth/logout", { method: "POST" });
     } catch {
-      // Ignorar
+      // Ignorar errores de red al cerrar sesión
     }
-  }, []);
+    setCurrentUser(null);
+    await fetchServerDb();
+  }, [fetchServerDb]);
 
   // Acciones de gestión CRM
   const unreadOrdersCount = useMemo(
@@ -766,11 +643,13 @@ export function VitalSurProvider({ children }: { children: React.ReactNode }) {
       const nextProducts = exists
         ? db.products.map((p) => (p.id === product.id ? product : p))
         : [product, ...db.products];
-      await persistState({ ...db, products: nextProducts });
-      showToast(
-        exists ? "Producto actualizado" : "Producto creado",
-        `${product.name} (${product.sku})`
-      );
+      const ok = await persistState({ ...db, products: nextProducts });
+      if (ok) {
+        showToast(
+          exists ? "Producto actualizado" : "Producto creado",
+          `${product.name} (${product.sku})`
+        );
+      }
     },
     [db, persistState, showToast]
   );
@@ -778,11 +657,13 @@ export function VitalSurProvider({ children }: { children: React.ReactNode }) {
   const deleteProduct = useCallback(
     async (productId: string) => {
       const target = db.products.find((p) => p.id === productId);
-      await persistState({
+      const ok = await persistState({
         ...db,
         products: db.products.filter((p) => p.id !== productId),
       });
-      showToast("Producto eliminado", target?.name || "");
+      if (ok) {
+        showToast("Producto eliminado", target?.name || "");
+      }
     },
     [db, persistState, showToast]
   );
@@ -815,24 +696,45 @@ export function VitalSurProvider({ children }: { children: React.ReactNode }) {
       const nextCategories = exists
         ? db.categories.map((c) => (c.id === category.id ? category : c))
         : [...db.categories, category];
-      await persistState({ ...db, categories: nextCategories });
-      showToast(
-        exists ? "Categoría actualizada" : "Categoría creada",
-        category.name
-      );
+      const ok = await persistState({ ...db, categories: nextCategories });
+      if (ok) {
+        showToast(
+          exists ? "Categoría actualizada" : "Categoría creada",
+          category.name
+        );
+      }
     },
     [db, persistState, showToast]
   );
 
   const deleteCategory = useCallback(
     async (categoryId: string) => {
-      await persistState({
+      const idsToDelete = new Set(
+        db.categories
+          .filter((c) => c.id === categoryId || c.parentId === categoryId)
+          .map((c) => c.id)
+      );
+      const blockingProducts = db.products.filter(
+        (p) =>
+          idsToDelete.has(p.categoryId) ||
+          (p.subcategoryId ? idsToDelete.has(p.subcategoryId) : false)
+      );
+      if (blockingProducts.length > 0) {
+        showToast(
+          "No se puede eliminar la categoría",
+          `Hay ${blockingProducts.length} producto(s) asociado(s). Reasigná o eliminá esos productos primero.`,
+          "warning"
+        );
+        return;
+      }
+
+      const ok = await persistState({
         ...db,
-        categories: db.categories.filter(
-          (c) => c.id !== categoryId && c.parentId !== categoryId
-        ),
+        categories: db.categories.filter((c) => !idsToDelete.has(c.id)),
       });
-      showToast("Categoría eliminada");
+      if (ok) {
+        showToast("Categoría eliminada");
+      }
     },
     [db, persistState, showToast]
   );
@@ -1085,7 +987,6 @@ export function VitalSurProvider({ children }: { children: React.ReactNode }) {
       createOrder,
       currentUser,
       loginStaff,
-      quickLoginRole,
       logoutStaff,
       unreadOrdersCount,
       updateOrderStatus,
@@ -1130,7 +1031,6 @@ export function VitalSurProvider({ children }: { children: React.ReactNode }) {
       createOrder,
       currentUser,
       loginStaff,
-      quickLoginRole,
       logoutStaff,
       unreadOrdersCount,
       updateOrderStatus,

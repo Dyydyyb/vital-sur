@@ -43,9 +43,9 @@ export function CartDrawer() {
 
   if (!isCartOpen) return null;
 
-  const handleApplyCoupon = (e: React.FormEvent) => {
+  const handleApplyCoupon = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = applyCouponCode(couponInput);
+    const res = await applyCouponCode(couponInput);
     setCouponFeedback(res);
     if (res.ok) setCouponInput("");
   };

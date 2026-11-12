@@ -55,7 +55,6 @@ export default function AdminCrmPage() {
     db,
     currentUser,
     loginStaff,
-    quickLoginRole,
     logoutStaff,
     unreadOrdersCount,
     simulateIncomingRealtimeOrder,
@@ -65,13 +64,16 @@ export default function AdminCrmPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   // Estado formulario de Login
-  const [loginEmail, setLoginEmail] = useState("admin@vitalsur.com.ar");
-  const [loginPassword, setLoginPassword] = useState("admin123");
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
   const [loginError, setLoginError] = useState<string | null>(null);
+  const [loginLoading, setLoginLoading] = useState(false);
 
-  const handleLoginSubmit = (e: React.FormEvent) => {
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = loginStaff(loginEmail, loginPassword);
+    setLoginLoading(true);
+    const res = await loginStaff(loginEmail, loginPassword);
+    setLoginLoading(false);
     if (!res.ok) {
       setLoginError(res.message);
     } else {
@@ -180,36 +182,9 @@ export default function AdminCrmPage() {
               Panel de Administración y CRM
             </span>
             <p className="mt-2 text-xs text-brand-ink-muted">
-              Ingresá con tu cuenta de equipo o usá los botones de acceso
-              directo por rol para explorar el CRM.
+              Ingresá con tus credenciales de equipo para gestionar pedidos,
+              catálogo, categorías y stock.
             </p>
-          </div>
-
-          {/* Botones de Acceso Rápido por Rol */}
-          <div className="rounded-card bg-brand-surface p-3.5 border border-brand-border space-y-2">
-            <p className="text-[11px] font-extrabold uppercase tracking-wider text-brand-ink-muted text-center">
-              Ingreso rápido de demostración (1 clic):
-            </p>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => quickLoginRole("ADMIN")}
-                className="flex flex-col items-center rounded-2xl bg-brand-green p-2.5 text-white hover:bg-brand-green-dark transition-colors shadow-sm"
-              >
-                <span className="text-xs font-extrabold">Rol Administrador</span>
-                <span className="text-[10px] opacity-90">Acceso Total</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => quickLoginRole("COLLABORATOR")}
-                className="flex flex-col items-center rounded-2xl bg-white border border-brand-border p-2.5 text-brand-ink hover:border-brand-green transition-colors"
-              >
-                <span className="text-xs font-extrabold">Rol Colaborador</span>
-                <span className="text-[10px] text-brand-ink-muted">
-                  Pedidos y Stock
-                </span>
-              </button>
-            </div>
           </div>
 
           <form onSubmit={handleLoginSubmit} className="space-y-4 text-xs">
@@ -385,20 +360,14 @@ export default function AdminCrmPage() {
           </div>
 
           <div className="flex items-center gap-2.5">
-            {/* Selector rápido de Rol para pruebas */}
-            <button
-              type="button"
-              onClick={() =>
-                quickLoginRole(
-                  currentUser.role === "ADMIN" ? "COLLABORATOR" : "ADMIN"
-                )
-              }
-              title="Cambiar rol activo para probar permisos"
-              className="inline-flex items-center gap-1.5 rounded-pill border border-brand-border bg-brand-surface px-3.5 py-1.5 text-xs font-bold text-brand-ink hover:border-brand-green"
+            {/* Indicador de Rol Activo */}
+            <span
+              title="Rol de la sesión autenticada"
+              className="inline-flex items-center gap-1.5 rounded-pill border border-brand-border bg-brand-surface px-3.5 py-1.5 text-xs font-bold text-brand-ink"
             >
               <UserCheck className="h-3.5 w-3.5 text-brand-green" />
               <span>Rol: {currentUser.role}</span>
-            </button>
+            </span>
 
             {/* Botón de notificaciones de pedidos */}
             <button

@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { Product, IllustrationType } from "@/lib/types";
 import { useVitalSur } from "@/context/VitalSurContext";
-import { formatARS } from "@/lib/format";
+import { formatARS, escapeCsvCell } from "@/lib/format";
 import { ProductVectorArt } from "@/components/brand/ProductVectorArt";
 
 const ILLUSTRATION_OPTIONS: { value: IllustrationType; label: string }[] = [
@@ -156,21 +156,23 @@ export function ProductsModule() {
       "Sabores",
       "Tamanos",
     ];
-    const rows = db.products.map((p) => [
-      p.sku,
-      `"${p.name.replace(/"/g, '""')}"`,
-      `"${p.brand}"`,
-      p.categoryId,
-      p.price,
-      p.salePrice ?? "",
-      p.cost,
-      p.stock,
-      p.minStock,
-      p.active ? "SI" : "NO",
-      p.featured ? "SI" : "NO",
-      `"${p.flavors.join(" | ")}"`,
-      `"${p.sizes.join(" | ")}"`,
-    ]);
+    const rows = db.products.map((p) =>
+      [
+        p.sku,
+        p.name,
+        p.brand,
+        p.categoryId,
+        p.price,
+        p.salePrice ?? "",
+        p.cost,
+        p.stock,
+        p.minStock,
+        p.active ? "SI" : "NO",
+        p.featured ? "SI" : "NO",
+        p.flavors.join(" | "),
+        p.sizes.join(" | "),
+      ].map(escapeCsvCell)
+    );
 
     const csvContent =
       "\uFEFF" +

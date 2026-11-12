@@ -23,6 +23,7 @@ import { StoreHeader } from "@/components/store/StoreHeader";
 import { StoreFooter } from "@/components/store/StoreFooter";
 import { ProductCard } from "@/components/store/ProductCard";
 import { CategoryIcon, WhatsAppSvg } from "@/components/brand/CategoryIcon";
+import { Reveal } from "@/components/ui/Reveal";
 import { useVitalSur } from "@/context/VitalSurContext";
 import { formatARS } from "@/lib/format";
 
@@ -120,6 +121,7 @@ export default function HomePage() {
   // Estado del Slider de Hero
   const [heroSlideIndex, setHeroSlideIndex] = useState(0);
   const [isHeroPaused, setIsHeroPaused] = useState(false);
+  const heroTouchStartX = useRef<number | null>(null);
 
   // Autoplay para el Hero Slider
   useEffect(() => {
@@ -138,6 +140,21 @@ export default function HomePage() {
     setHeroSlideIndex(
       (prev) => (prev - 1 + HERO_SLIDES.length) % HERO_SLIDES.length
     );
+  };
+
+  const handleHeroTouchStart = (e: React.TouchEvent) => {
+    heroTouchStartX.current = e.touches[0]?.clientX ?? null;
+  };
+
+  const handleHeroTouchEnd = (e: React.TouchEvent) => {
+    if (heroTouchStartX.current === null) return;
+    const endX = e.changedTouches[0]?.clientX ?? heroTouchStartX.current;
+    const delta = heroTouchStartX.current - endX;
+    if (Math.abs(delta) > 45) {
+      if (delta > 0) handleNextHeroSlide();
+      else handlePrevHeroSlide();
+    }
+    heroTouchStartX.current = null;
   };
 
   // Referencias para scrolls horizontales fluidos
@@ -216,9 +233,11 @@ export default function HomePage() {
           className="relative h-[100svh] min-h-[100svh] max-h-[100svh] w-full overflow-hidden flex flex-col justify-between pt-20 lg:pt-24 pb-3 sm:pb-4 px-4 sm:px-6 lg:px-8 select-none"
           onMouseEnter={() => setIsHeroPaused(true)}
           onMouseLeave={() => setIsHeroPaused(false)}
+          onTouchStart={handleHeroTouchStart}
+          onTouchEnd={handleHeroTouchEnd}
         >
-          {/* Slider de imágenes de borde a borde */}
-          <div className="absolute inset-0 w-full h-full overflow-hidden">
+          {/* Slider de imágenes de borde a borde con scrim atmosférico para contraste */}
+          <div className="absolute inset-0 w-full h-full overflow-hidden bg-[#13201C]">
             {HERO_SLIDES.map((slide, idx) => (
               <div
                 key={slide.id}
@@ -231,10 +250,16 @@ export default function HomePage() {
                 <img
                   src={slide.image}
                   alt={slide.alt}
-                  className="w-full h-full object-cover object-center"
+                  className={`w-full h-full object-cover object-center ${
+                    idx === heroSlideIndex ? "animate-hero-kenburns" : ""
+                  }`}
                 />
               </div>
             ))}
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 z-[1] bg-gradient-to-b from-[#13201C]/75 via-[#13201C]/55 to-[#13201C]/80"
+            />
           </div>
 
           {/* Flechas de navegación del Slider (borde a borde) */}
@@ -242,7 +267,7 @@ export default function HomePage() {
             type="button"
             onClick={handlePrevHeroSlide}
             aria-label="Imagen anterior"
-            className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-20 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-white/85 hover:bg-white text-brand-ink hover:text-brand-green border border-brand-border shadow-soft backdrop-blur-md transition-all duration-200 hover:scale-105"
+            className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-20 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-[#13201C]/45 hover:bg-[#13201C]/80 text-white border border-white/25 shadow-soft backdrop-blur-md transition-all duration-200 hover:scale-105 active:scale-95"
           >
             <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" strokeWidth={2.2} />
           </button>
@@ -251,28 +276,28 @@ export default function HomePage() {
             type="button"
             onClick={handleNextHeroSlide}
             aria-label="Siguiente imagen"
-            className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-20 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-white/85 hover:bg-white text-brand-ink hover:text-brand-green border border-brand-border shadow-soft backdrop-blur-md transition-all duration-200 hover:scale-105"
+            className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-20 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-[#13201C]/45 hover:bg-[#13201C]/80 text-white border border-white/25 shadow-soft backdrop-blur-md transition-all duration-200 hover:scale-105 active:scale-95"
           >
             <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" strokeWidth={2.2} />
           </button>
 
-          {/* Contenido central del Hero: Por encima SIN recuadro, el hero se ve por completo */}
-          <div className="relative z-10 mx-auto my-auto flex w-full max-w-3xl flex-col items-center justify-center text-center space-y-3 sm:space-y-4 animate-fade-slide px-4">
-            <div className="inline-flex items-center gap-2 rounded-pill bg-white/90 backdrop-blur-sm border border-brand-border px-3.5 py-1 shadow-soft">
-              <span className="h-2 w-2 rounded-full bg-brand-green animate-pulse" />
-              <span className="text-[11px] sm:text-xs font-bold tracking-wide text-brand-ink">
+          {/* Contenido central del Hero: Por encima SIN recuadro, tipografía blanca de alto contraste */}
+          <div className="relative z-10 mx-auto my-auto flex w-full max-w-3xl flex-col items-center justify-center text-center space-y-3.5 sm:space-y-4 animate-fade-slide px-4">
+            <div className="inline-flex items-center gap-2 rounded-pill bg-[#13201C]/65 backdrop-blur-md border border-white/20 px-4 py-1.5 shadow-soft">
+              <span className="h-2 w-2 rounded-full bg-[#6EE7B7] animate-pulse" />
+              <span className="text-[11px] sm:text-xs font-bold tracking-wide text-white">
                 Florencio Varela, Zona Sur · Envíos a toda la Argentina
               </span>
             </div>
 
-            <h1 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-[46px] font-extrabold tracking-tight text-brand-ink leading-[1.15] drop-shadow-[0_1px_4px_rgba(255,255,255,0.95)]">
+            <h1 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-[46px] font-extrabold tracking-tight text-white leading-[1.15] drop-shadow-[0_2px_14px_rgba(19,32,28,0.7)]">
               {db.settings.heroTitle.split("energía real")[0]}
-              <span className="text-brand-green">energía real</span>
+              <span className="text-[#6EE7B7]">energía real</span>
               {db.settings.heroTitle.split("energía real")[1] ||
                 " para potenciar cada entrenamiento"}
             </h1>
 
-            <p className="max-w-2xl text-xs sm:text-sm lg:text-base text-brand-ink-muted leading-relaxed font-medium drop-shadow-[0_1px_3px_rgba(255,255,255,0.95)]">
+            <p className="max-w-2xl text-xs sm:text-sm lg:text-base text-white/95 leading-relaxed font-medium drop-shadow-[0_1px_10px_rgba(19,32,28,0.75)]">
               {db.settings.heroSubtitle}
             </p>
 
@@ -280,42 +305,42 @@ export default function HomePage() {
             <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
               <Link
                 href="/productos"
-                className="inline-flex items-center justify-center gap-2 rounded-pill bg-brand-green px-7 py-3 text-xs sm:text-sm font-bold text-white shadow-soft transition-all duration-200 ease-natural hover:bg-brand-green-dark hover:-translate-y-0.5"
+                className="inline-flex items-center justify-center gap-2 rounded-pill bg-brand-green px-7 py-3 text-xs sm:text-sm font-bold text-white shadow-soft transition-all duration-200 ease-natural hover:bg-brand-green-dark hover:-translate-y-0.5 active:scale-[0.98]"
               >
                 <span>Ver productos</span>
                 <ArrowRight className="h-4 w-4" strokeWidth={2.2} />
               </Link>
               <Link
                 href="#quienes-somos"
-                className="inline-flex items-center justify-center gap-2 rounded-pill border border-brand-border bg-white/95 px-7 py-3 text-xs sm:text-sm font-bold text-brand-ink shadow-soft transition-all duration-200 ease-natural hover:border-brand-green hover:text-brand-green hover:-translate-y-0.5"
+                className="inline-flex items-center justify-center gap-2 rounded-pill border border-white/35 bg-white/15 backdrop-blur-md px-7 py-3 text-xs sm:text-sm font-bold text-white shadow-soft transition-all duration-200 ease-natural hover:bg-white hover:text-brand-ink hover:-translate-y-0.5 active:scale-[0.98]"
               >
                 <span>Conocer más</span>
               </Link>
             </div>
 
             {/* Indicadores horizontales rápidos */}
-            <div className="grid grid-cols-3 gap-3 pt-2 max-w-lg w-full border-t border-brand-ink/15">
-              <div className="bg-white/80 backdrop-blur-sm rounded-2xl py-2 px-1 border border-white/60 shadow-soft-sm">
-                <p className="font-display text-base sm:text-lg font-extrabold text-brand-ink">
+            <div className="grid grid-cols-3 gap-2.5 sm:gap-3 pt-2 max-w-lg w-full border-t border-white/20">
+              <div className="bg-[#13201C]/55 backdrop-blur-md rounded-2xl py-2.5 px-2 border border-white/15 shadow-soft-sm">
+                <p className="font-display text-sm sm:text-lg font-extrabold text-white">
                   100% Puros
                 </p>
-                <p className="text-[10px] sm:text-xs text-brand-ink-muted">
+                <p className="text-[10px] sm:text-xs text-white/85">
                   Aprobados y Sin TACC
                 </p>
               </div>
-              <div className="bg-white/80 backdrop-blur-sm rounded-2xl py-2 px-1 border border-white/60 shadow-soft-sm">
-                <p className="font-display text-base sm:text-lg font-extrabold text-brand-green-dark">
+              <div className="bg-[#13201C]/55 backdrop-blur-md rounded-2xl py-2.5 px-2 border border-white/15 shadow-soft-sm">
+                <p className="font-display text-sm sm:text-lg font-extrabold text-[#6EE7B7]">
                   {formatARS(db.settings.freeShippingThreshold)}+
                 </p>
-                <p className="text-[10px] sm:text-xs text-brand-ink-muted">
+                <p className="text-[10px] sm:text-xs text-white/85">
                   Envío Gratis Nacional
                 </p>
               </div>
-              <div className="bg-white/80 backdrop-blur-sm rounded-2xl py-2 px-1 border border-white/60 shadow-soft-sm">
-                <p className="font-display text-base sm:text-lg font-extrabold text-brand-ink">
+              <div className="bg-[#13201C]/55 backdrop-blur-md rounded-2xl py-2.5 px-2 border border-white/15 shadow-soft-sm">
+                <p className="font-display text-sm sm:text-lg font-extrabold text-white">
                   24 / 48 hs
                 </p>
-                <p className="text-[10px] sm:text-xs text-brand-ink-muted">
+                <p className="text-[10px] sm:text-xs text-white/85">
                   Despacho Correo Arg.
                 </p>
               </div>
@@ -333,8 +358,8 @@ export default function HomePage() {
                   aria-label={`Ir al slide ${idx + 1}`}
                   className={`h-2 rounded-full transition-all duration-300 ${
                     idx === heroSlideIndex
-                      ? "w-8 bg-brand-green"
-                      : "w-2.5 bg-brand-ink/25 hover:bg-brand-green/60"
+                      ? "w-8 bg-[#6EE7B7]"
+                      : "w-2.5 bg-white/40 hover:bg-white/75"
                   }`}
                 />
               ))}
@@ -343,11 +368,11 @@ export default function HomePage() {
             <a
               href="#categorias"
               aria-label="Desplazarse a las categorías"
-              className="group inline-flex flex-col items-center gap-1 text-[11px] font-semibold text-brand-ink-muted hover:text-brand-green transition-colors mt-0.5"
+              className="group inline-flex flex-col items-center gap-1 text-[11px] font-semibold text-white/90 hover:text-[#6EE7B7] transition-colors mt-0.5"
             >
               <span>Explorar líneas</span>
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white border border-brand-border shadow-soft animate-scroll-indicator group-hover:border-brand-green">
-                <ChevronDown className="h-3.5 w-3.5 text-brand-green" strokeWidth={2.2} />
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#13201C]/60 backdrop-blur-sm border border-white/25 shadow-soft animate-scroll-indicator group-hover:border-[#6EE7B7]">
+                <ChevronDown className="h-3.5 w-3.5 text-[#6EE7B7]" strokeWidth={2.2} />
               </span>
             </a>
           </div>
@@ -360,7 +385,7 @@ export default function HomePage() {
           id="categorias"
           className="py-10 sm:py-14 px-4 sm:px-6 lg:px-8 bg-brand-white scroll-mt-20 border-b border-brand-border/60"
         >
-          <div className="mx-auto max-w-7xl">
+          <Reveal className="mx-auto max-w-7xl">
             <div className="flex items-center justify-between gap-4 mb-6">
               <div>
                 <span className="text-xs font-extrabold uppercase tracking-widest text-brand-green">
@@ -405,7 +430,7 @@ export default function HomePage() {
                   <Link
                     key={cat.id}
                     href={`/productos?categoria=${cat.slug}`}
-                    className="group flex flex-col items-center text-center rounded-card bg-brand-surface border border-brand-border/80 p-4 min-w-[145px] sm:min-w-[160px] max-w-[160px] shrink-0 scroll-snap-align-start transition-all duration-200 ease-natural hover:-translate-y-1 hover:bg-white hover:border-brand-green hover:shadow-soft"
+                    className="group card-elevate flex flex-col items-center text-center rounded-card bg-brand-surface border border-brand-border/80 p-4 min-w-[145px] sm:min-w-[160px] max-w-[160px] shrink-0 scroll-snap-align-start hover:bg-white hover:border-brand-green hover:shadow-soft"
                   >
                     <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-brand-green border border-brand-border shadow-sm transition-colors duration-200 group-hover:bg-brand-green group-hover:text-white">
                       <CategoryIcon name={cat.iconName} className="h-5 w-5" />
@@ -420,7 +445,7 @@ export default function HomePage() {
                 );
               })}
             </div>
-          </div>
+          </Reveal>
         </section>
 
         {/* =========================================================

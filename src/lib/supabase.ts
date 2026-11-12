@@ -217,6 +217,20 @@ export function mapStoreSettingsFromDb(row: any, fallback: StoreSettings): Store
 // Mappers: Convierte de TypeScript camelCase a Postgres snake_case
 // -------------------------------------------------------------
 
+export function mapCategoryToDb(c: Category) {
+  return {
+    id: c.id,
+    name: c.name,
+    slug: c.slug,
+    description: c.description || "",
+    icon_name: c.iconName || "dumbbell",
+    sort_order: Number(c.order ?? 1),
+    active: c.active ?? true,
+    parent_id: c.parentId || null,
+    updated_at: new Date().toISOString(),
+  };
+}
+
 export function mapProductToDb(p: Product) {
   return {
     id: p.id,

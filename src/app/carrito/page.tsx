@@ -44,9 +44,9 @@ export default function FullCartPage() {
     message: string;
   } | null>(null);
 
-  const handleCouponSubmit = (e: React.FormEvent) => {
+  const handleCouponSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = applyCouponCode(couponInput);
+    const res = await applyCouponCode(couponInput);
     setCouponMessage(res);
     if (res.ok) setCouponInput("");
   };

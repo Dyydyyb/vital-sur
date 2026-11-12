@@ -111,3 +111,19 @@ export const ARGENTINA_PROVINCES = [
   "Tucumán",
 ] as const;
 
+/**
+ * Escapa celdas CSV de forma segura y neutraliza inyección de fórmulas (=, +, -, @, tab, CR)
+ * al abrir el archivo en Excel o Google Sheets.
+ */
+export function escapeCsvCell(value: unknown): string {
+  if (value === null || value === undefined) return "";
+  let str = String(value);
+  if (/^[=+\-@\t\r]/.test(str)) {
+    str = `'${str}`;
+  }
+  if (/[",\n\r]/.test(str) || str.startsWith("'")) {
+    return `"${str.replace(/"/g, '""')}"`;
+  }
+  return str;
+}
+

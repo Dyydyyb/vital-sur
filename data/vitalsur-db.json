@@ -24,16 +24,6 @@
   },
   "categories": [
     {
-      "id": "cat-proteinas",
-      "name": "Proteínas",
-      "slug": "proteinas",
-      "description": "Aislados y concentrados de alta biodisponibilidad para desarrollo y recuperación muscular.",
-      "iconName": "dumbbell",
-      "order": 1,
-      "active": true,
-      "parentId": null
-    },
-    {
       "id": "subcat-whey",
       "name": "Whey Protein Concentrada e Isolada",
       "slug": "whey-protein",
@@ -42,6 +32,16 @@
       "order": 1,
       "active": true,
       "parentId": "cat-proteinas"
+    },
+    {
+      "id": "cat-proteinas",
+      "name": "Proteínas",
+      "slug": "proteinas",
+      "description": "Aislados y concentrados de alta biodisponibilidad para desarrollo y recuperación muscular.",
+      "iconName": "dumbbell",
+      "order": 1,
+      "active": true,
+      "parentId": null
     },
     {
       "id": "subcat-creatina-micro",

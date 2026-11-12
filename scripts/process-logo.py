@@ -83,3 +83,4 @@ favicon.save(os.path.join(out_dir, 'favicon.png'))
 favicon.save(os.path.join(out_dir, 'isotipo-64.png'))
 
 print('All logo variants successfully generated in', out_dir)
+
