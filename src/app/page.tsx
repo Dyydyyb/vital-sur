@@ -230,14 +230,14 @@ export default function HomePage() {
            ========================================================= */}
         <section
           aria-label="Presentación principal de Vital Sur"
-          className="relative min-h-[100svh] md:h-[100svh] md:min-h-[100svh] md:max-h-[100svh] w-full overflow-hidden flex flex-col justify-between bg-[#13201C] pt-16 md:pt-20 lg:pt-24 pb-4 px-0 md:px-6 lg:px-8 select-none"
+          className="relative h-[100svh] min-h-[540px] max-h-[100svh] w-full overflow-hidden flex flex-col justify-between bg-[#13201C] pt-20 lg:pt-24 pb-3 sm:pb-4 px-4 sm:px-6 lg:px-8 select-none"
           onMouseEnter={() => setIsHeroPaused(true)}
           onMouseLeave={() => setIsHeroPaused(false)}
           onTouchStart={handleHeroTouchStart}
           onTouchEnd={handleHeroTouchEnd}
         >
-          {/* Slider de imágenes: proporción natural 16:9 sin recortes en celular, full-bleed en desktop */}
-          <div className="relative w-full aspect-[16/9] md:aspect-auto md:absolute md:inset-0 md:h-full overflow-hidden bg-[#13201C] shrink-0">
+          {/* Slider de imágenes de fondo: en móvil muestra la foto completa sin recortes sobre un relleno atmosférico; en desktop full-bleed */}
+          <div className="absolute inset-0 w-full h-full overflow-hidden bg-[#13201C]">
             {HERO_SLIDES.map((slide, idx) => (
               <div
                 key={slide.id}
@@ -247,48 +247,52 @@ export default function HomePage() {
                     : "opacity-0 -z-10 pointer-events-none"
                 }`}
               >
+                {/* Capa atmosférica difuminada solo en móvil para cubrir el alto vertical sin franjas duras */}
+                <img
+                  src={slide.image}
+                  alt=""
+                  aria-hidden="true"
+                  className="md:hidden absolute inset-0 w-full h-full object-cover object-center blur-2xl scale-110 opacity-50"
+                />
+                {/* Imagen principal: 100% visible sin recortes en móvil (object-contain) y full-bleed en desktop (object-cover) */}
                 <img
                   src={slide.image}
                   alt={slide.alt}
-                  className={`w-full h-full object-contain md:object-cover object-center ${
+                  className={`relative w-full h-full object-contain md:object-cover object-center ${
                     idx === heroSlideIndex ? "md:animate-hero-kenburns" : ""
                   }`}
                 />
               </div>
             ))}
 
-            {/* Degradado atmosférico en desktop para contraste de texto; transición sutil inferior en móvil */}
+            {/* Degradado atmosférico para garantizar contraste nítido del texto sobre el fondo */}
             <div
               aria-hidden="true"
-              className="hidden md:block absolute inset-0 z-[1] bg-gradient-to-b from-[#13201C]/75 via-[#13201C]/55 to-[#13201C]/80"
+              className="absolute inset-0 z-[1] bg-gradient-to-b from-[#13201C]/75 via-[#13201C]/55 to-[#13201C]/80"
             />
-            <div
-              aria-hidden="true"
-              className="md:hidden absolute inset-x-0 bottom-0 h-6 z-[1] bg-gradient-to-t from-[#13201C] to-transparent pointer-events-none"
-            />
-
-            {/* Flechas de navegación del Slider */}
-            <button
-              type="button"
-              onClick={handlePrevHeroSlide}
-              aria-label="Imagen anterior"
-              className="absolute left-2.5 sm:left-6 top-1/2 -translate-y-1/2 z-20 flex h-9 w-9 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-[#13201C]/55 hover:bg-[#13201C]/85 text-white border border-white/25 shadow-soft backdrop-blur-md transition-all duration-200 hover:scale-105 active:scale-95"
-            >
-              <ChevronLeft className="h-4 w-4 sm:h-6 sm:w-6" strokeWidth={2.2} />
-            </button>
-
-            <button
-              type="button"
-              onClick={handleNextHeroSlide}
-              aria-label="Siguiente imagen"
-              className="absolute right-2.5 sm:right-6 top-1/2 -translate-y-1/2 z-20 flex h-9 w-9 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-[#13201C]/55 hover:bg-[#13201C]/85 text-white border border-white/25 shadow-soft backdrop-blur-md transition-all duration-200 hover:scale-105 active:scale-95"
-            >
-              <ChevronRight className="h-4 w-4 sm:h-6 sm:w-6" strokeWidth={2.2} />
-            </button>
           </div>
 
-          {/* Contenido central del Hero: debajo de la foto en móvil (cero recorte) y superpuesto en desktop */}
-          <div className="relative z-10 mx-auto my-auto flex w-full max-w-3xl flex-col items-center justify-center text-center space-y-3 sm:space-y-4 animate-fade-slide px-4 sm:px-6 py-4 md:py-0">
+          {/* Flechas de navegación del Slider (borde a borde) */}
+          <button
+            type="button"
+            onClick={handlePrevHeroSlide}
+            aria-label="Imagen anterior"
+            className="absolute left-2.5 sm:left-6 top-1/2 -translate-y-1/2 z-20 flex h-9 w-9 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-[#13201C]/50 hover:bg-[#13201C]/85 text-white border border-white/25 shadow-soft backdrop-blur-md transition-all duration-200 hover:scale-105 active:scale-95"
+          >
+            <ChevronLeft className="h-4 w-4 sm:h-6 sm:w-6" strokeWidth={2.2} />
+          </button>
+
+          <button
+            type="button"
+            onClick={handleNextHeroSlide}
+            aria-label="Siguiente imagen"
+            className="absolute right-2.5 sm:right-6 top-1/2 -translate-y-1/2 z-20 flex h-9 w-9 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-[#13201C]/50 hover:bg-[#13201C]/85 text-white border border-white/25 shadow-soft backdrop-blur-md transition-all duration-200 hover:scale-105 active:scale-95"
+          >
+            <ChevronRight className="h-4 w-4 sm:h-6 sm:w-6" strokeWidth={2.2} />
+          </button>
+
+          {/* Contenido central del Hero: siempre por encima de las imágenes de fondo */}
+          <div className="relative z-10 mx-auto my-auto flex w-full max-w-3xl flex-col items-center justify-center text-center space-y-3 sm:space-y-4 animate-fade-slide px-2 sm:px-4">
             <div className="inline-flex items-center gap-2 rounded-pill bg-[#13201C]/65 backdrop-blur-md border border-white/20 px-4 py-1.5 shadow-soft">
               <span className="h-2 w-2 rounded-full bg-[#6EE7B7] animate-pulse" />
               <span className="text-[11px] sm:text-xs font-bold tracking-wide text-white">
