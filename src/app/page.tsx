@@ -16,7 +16,6 @@ import {
   Minus,
   CheckCircle2,
   MapPin,
-  Download,
   Quote,
   Package,
 } from "lucide-react";
@@ -24,7 +23,6 @@ import { StoreHeader } from "@/components/store/StoreHeader";
 import { StoreFooter } from "@/components/store/StoreFooter";
 import { ProductCard } from "@/components/store/ProductCard";
 import { CategoryIcon, WhatsAppSvg } from "@/components/brand/CategoryIcon";
-import { VitalSurLogo } from "@/components/brand/VitalSurLogo";
 import { useVitalSur } from "@/context/VitalSurContext";
 import { formatARS } from "@/lib/format";
 
@@ -235,7 +233,6 @@ export default function HomePage() {
                   alt={slide.alt}
                   className="w-full h-full object-cover object-center"
                 />
-                <div className="absolute inset-0 bg-brand-white/40 backdrop-brightness-[0.98]" />
               </div>
             ))}
           </div>
@@ -259,70 +256,68 @@ export default function HomePage() {
             <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" strokeWidth={2.2} />
           </button>
 
-          {/* Contenido central del Hero: Centrado, legible y sin el cuadro anterior */}
-          <div className="relative z-10 mx-auto my-auto flex w-full max-w-3xl flex-col items-center justify-center">
-            <div className="w-full rounded-card-lg bg-white/90 backdrop-blur-md border border-brand-border/70 p-5 sm:p-7 md:p-8 shadow-soft-lg text-center flex flex-col items-center justify-center space-y-3 sm:space-y-4 animate-fade-slide">
-              <div className="inline-flex items-center gap-2 rounded-pill bg-white border border-brand-border px-3.5 py-1 shadow-soft">
-                <span className="h-2 w-2 rounded-full bg-brand-green animate-pulse" />
-                <span className="text-[11px] sm:text-xs font-bold tracking-wide text-brand-ink">
-                  Florencio Varela, Zona Sur · Envíos a toda la Argentina
-                </span>
+          {/* Contenido central del Hero: Por encima SIN recuadro, el hero se ve por completo */}
+          <div className="relative z-10 mx-auto my-auto flex w-full max-w-3xl flex-col items-center justify-center text-center space-y-3 sm:space-y-4 animate-fade-slide px-4">
+            <div className="inline-flex items-center gap-2 rounded-pill bg-white/90 backdrop-blur-sm border border-brand-border px-3.5 py-1 shadow-soft">
+              <span className="h-2 w-2 rounded-full bg-brand-green animate-pulse" />
+              <span className="text-[11px] sm:text-xs font-bold tracking-wide text-brand-ink">
+                Florencio Varela, Zona Sur · Envíos a toda la Argentina
+              </span>
+            </div>
+
+            <h1 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-[46px] font-extrabold tracking-tight text-brand-ink leading-[1.15] drop-shadow-[0_1px_4px_rgba(255,255,255,0.95)]">
+              {db.settings.heroTitle.split("energía real")[0]}
+              <span className="text-brand-green">energía real</span>
+              {db.settings.heroTitle.split("energía real")[1] ||
+                " para potenciar cada entrenamiento"}
+            </h1>
+
+            <p className="max-w-2xl text-xs sm:text-sm lg:text-base text-brand-ink-muted leading-relaxed font-medium drop-shadow-[0_1px_3px_rgba(255,255,255,0.95)]">
+              {db.settings.heroSubtitle}
+            </p>
+
+            {/* Botones tipo píldora */}
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
+              <Link
+                href="/productos"
+                className="inline-flex items-center justify-center gap-2 rounded-pill bg-brand-green px-7 py-3 text-xs sm:text-sm font-bold text-white shadow-soft transition-all duration-200 ease-natural hover:bg-brand-green-dark hover:-translate-y-0.5"
+              >
+                <span>Ver productos</span>
+                <ArrowRight className="h-4 w-4" strokeWidth={2.2} />
+              </Link>
+              <Link
+                href="#quienes-somos"
+                className="inline-flex items-center justify-center gap-2 rounded-pill border border-brand-border bg-white/95 px-7 py-3 text-xs sm:text-sm font-bold text-brand-ink shadow-soft transition-all duration-200 ease-natural hover:border-brand-green hover:text-brand-green hover:-translate-y-0.5"
+              >
+                <span>Conocer más</span>
+              </Link>
+            </div>
+
+            {/* Indicadores horizontales rápidos */}
+            <div className="grid grid-cols-3 gap-3 pt-2 max-w-lg w-full border-t border-brand-ink/15">
+              <div className="bg-white/80 backdrop-blur-sm rounded-2xl py-2 px-1 border border-white/60 shadow-soft-sm">
+                <p className="font-display text-base sm:text-lg font-extrabold text-brand-ink">
+                  100% Puros
+                </p>
+                <p className="text-[10px] sm:text-xs text-brand-ink-muted">
+                  Aprobados y Sin TACC
+                </p>
               </div>
-
-              <h1 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-[44px] font-extrabold tracking-tight text-brand-ink leading-[1.15]">
-                {db.settings.heroTitle.split("energía real")[0]}
-                <span className="text-brand-green">energía real</span>
-                {db.settings.heroTitle.split("energía real")[1] ||
-                  " para potenciar cada entrenamiento"}
-              </h1>
-
-              <p className="max-w-2xl text-xs sm:text-sm lg:text-base text-brand-ink-muted leading-relaxed">
-                {db.settings.heroSubtitle}
-              </p>
-
-              {/* Botones tipo píldora */}
-              <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
-                <Link
-                  href="/productos"
-                  className="inline-flex items-center justify-center gap-2 rounded-pill bg-brand-green px-6 sm:px-7 py-3 text-xs sm:text-sm font-bold text-white shadow-soft transition-all duration-200 ease-natural hover:bg-brand-green-dark hover:-translate-y-0.5"
-                >
-                  <span>Ver productos</span>
-                  <ArrowRight className="h-4 w-4" strokeWidth={2.2} />
-                </Link>
-                <Link
-                  href="#quienes-somos"
-                  className="inline-flex items-center justify-center gap-2 rounded-pill border border-brand-border bg-white px-6 sm:px-7 py-3 text-xs sm:text-sm font-bold text-brand-ink shadow-soft transition-all duration-200 ease-natural hover:border-brand-green hover:text-brand-green"
-                >
-                  <span>Conocer más</span>
-                </Link>
+              <div className="bg-white/80 backdrop-blur-sm rounded-2xl py-2 px-1 border border-white/60 shadow-soft-sm">
+                <p className="font-display text-base sm:text-lg font-extrabold text-brand-green-dark">
+                  {formatARS(db.settings.freeShippingThreshold)}+
+                </p>
+                <p className="text-[10px] sm:text-xs text-brand-ink-muted">
+                  Envío Gratis Nacional
+                </p>
               </div>
-
-              {/* Indicadores horizontales rápidos */}
-              <div className="grid grid-cols-3 gap-3 pt-2 max-w-lg w-full border-t border-brand-border/80">
-                <div>
-                  <p className="font-display text-base sm:text-lg font-extrabold text-brand-ink">
-                    100% Puros
-                  </p>
-                  <p className="text-[10px] sm:text-xs text-brand-ink-muted">
-                    Aprobados y Sin TACC
-                  </p>
-                </div>
-                <div>
-                  <p className="font-display text-base sm:text-lg font-extrabold text-brand-green-dark">
-                    {formatARS(db.settings.freeShippingThreshold)}+
-                  </p>
-                  <p className="text-[10px] sm:text-xs text-brand-ink-muted">
-                    Envío Gratis Nacional
-                  </p>
-                </div>
-                <div>
-                  <p className="font-display text-base sm:text-lg font-extrabold text-brand-ink">
-                    24 / 48 hs
-                  </p>
-                  <p className="text-[10px] sm:text-xs text-brand-ink-muted">
-                    Despacho Correo Argentino
-                  </p>
-                </div>
+              <div className="bg-white/80 backdrop-blur-sm rounded-2xl py-2 px-1 border border-white/60 shadow-soft-sm">
+                <p className="font-display text-base sm:text-lg font-extrabold text-brand-ink">
+                  24 / 48 hs
+                </p>
+                <p className="text-[10px] sm:text-xs text-brand-ink-muted">
+                  Despacho Correo Arg.
+                </p>
               </div>
             </div>
           </div>
@@ -721,102 +716,53 @@ export default function HomePage() {
         </section>
 
         {/* =========================================================
-            6. QUIÉNES SOMOS & IDENTIDAD (Diseño horizontal equilibrado)
+            6. QUIÉNES SOMOS (Emprendimiento familiar de Florencio Varela)
            ========================================================= */}
         <section
           id="quienes-somos"
-          className="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 bg-brand-white border-b border-brand-border/60 scroll-mt-20"
+          className="py-14 sm:py-20 px-4 sm:px-6 lg:px-8 bg-brand-white border-b border-brand-border/60 scroll-mt-20"
         >
-          <div className="mx-auto max-w-7xl">
-            <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-12">
-              <div className="lg:col-span-7 space-y-4">
-                <div className="inline-flex items-center gap-2 rounded-pill bg-brand-surface border border-brand-border px-3.5 py-1 text-xs font-bold text-brand-green-dark">
-                  <MapPin className="h-3.5 w-3.5" strokeWidth={2} />
-                  <span>Emprendimiento Familiar de Florencio Varela</span>
-                </div>
+          <div className="mx-auto max-w-4xl text-center space-y-5">
+            <div className="inline-flex items-center gap-2 rounded-pill bg-brand-surface border border-brand-border px-4 py-1.5 text-xs font-bold text-brand-green-dark shadow-soft">
+              <MapPin className="h-3.5 w-3.5" strokeWidth={2} />
+              <span>Emprendimiento Familiar de Florencio Varela</span>
+            </div>
 
-                <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-brand-ink leading-snug">
-                  Nacimos en Zona Sur con una premisa: suplementación honesta y sin sobreprecios
-                </h2>
+            <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-extrabold text-brand-ink leading-tight">
+              Nacimos en Zona Sur con una premisa: suplementación honesta y sin sobreprecios
+            </h2>
 
-                <p className="text-xs sm:text-sm text-brand-ink-muted leading-relaxed">
-                  <strong>Vital Sur</strong> surgió en Florencio Varela impulsado
-                  por una familia dedicada al entrenamiento atlético y la fuerza.
-                  Trabajamos directamente con laboratorios auditados para
-                  ofrecerte materias primas con trazabilidad transparente y
-                  despacho a toda la Argentina por Correo Argentino.
+            <p className="text-xs sm:text-sm md:text-base text-brand-ink-muted leading-relaxed max-w-2xl mx-auto">
+              <strong className="text-brand-ink">Vital Sur</strong> surgió en Florencio Varela impulsado
+              por una familia apasionada por el entrenamiento atlético y la fuerza.
+              Trabajamos directamente con laboratorios auditados para ofrecerte materias primas
+              con trazabilidad transparente, máxima pureza y despacho seguro a toda la Argentina por Correo Argentino.
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 max-w-2xl mx-auto">
+              <div className="rounded-card-lg bg-brand-surface p-5 border border-brand-border shadow-soft">
+                <p className="font-display text-2xl sm:text-3xl font-extrabold text-brand-green-dark">
+                  +4.800
                 </p>
-
-                <div className="grid grid-cols-3 gap-3 pt-1">
-                  <div className="rounded-card bg-brand-surface p-3.5 border border-brand-border">
-                    <p className="font-display text-xl font-extrabold text-brand-green-dark">
-                      +4.800
-                    </p>
-                    <p className="text-[11px] text-brand-ink-muted mt-0.5">
-                      Pedidos entregados
-                    </p>
-                  </div>
-                  <div className="rounded-card bg-brand-surface p-3.5 border border-brand-border">
-                    <p className="font-display text-xl font-extrabold text-brand-ink">
-                      100%
-                    </p>
-                    <p className="text-[11px] text-brand-ink-muted mt-0.5">
-                      Trazabilidad y Sin TACC
-                    </p>
-                  </div>
-                  <div className="rounded-card bg-brand-surface p-3.5 border border-brand-border">
-                    <p className="font-display text-xl font-extrabold text-brand-blue-dark">
-                      F. Varela
-                    </p>
-                    <p className="text-[11px] text-brand-ink-muted mt-0.5">
-                      Zona Sur, Buenos Aires
-                    </p>
-                  </div>
-                </div>
+                <p className="text-xs font-semibold text-brand-ink-muted mt-1">
+                  Pedidos entregados
+                </p>
               </div>
-
-              {/* Muestrario Horizontal de Logos SVG */}
-              <div className="lg:col-span-5 rounded-card-lg bg-brand-surface p-5 border border-brand-border shadow-soft space-y-4">
-                <div className="flex items-center justify-between border-b border-brand-border pb-2.5">
-                  <h3 className="font-display text-xs font-extrabold uppercase tracking-wider text-brand-ink">
-                    Identidad Vital Sur (SVG Propio)
-                  </h3>
-                  <a
-                    href="/brand/logo-horizontal.svg"
-                    download
-                    className="inline-flex items-center gap-1 text-[11px] font-bold text-brand-green hover:underline"
-                  >
-                    <Download className="h-3 w-3" />
-                    <span>Descargar Kit</span>
-                  </a>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2.5">
-                  <div className="flex flex-col items-center justify-center rounded-card bg-white p-3 border border-brand-border text-center">
-                    <VitalSurLogo variant="horizontal" size="sm" />
-                    <span className="text-[10px] font-bold text-brand-ink-muted mt-2">
-                      Variante Horizontal
-                    </span>
-                  </div>
-                  <div className="flex flex-col items-center justify-center rounded-card bg-white p-3 border border-brand-border text-center">
-                    <VitalSurLogo variant="vertical" size="sm" />
-                    <span className="text-[10px] font-bold text-brand-ink-muted mt-1">
-                      Variante Vertical
-                    </span>
-                  </div>
-                  <div className="flex flex-col items-center justify-center rounded-card bg-white p-3 border border-brand-border text-center">
-                    <VitalSurLogo variant="isotipo" size="md" />
-                    <span className="text-[10px] font-bold text-brand-ink-muted mt-2">
-                      Isotipo &amp; Favicon
-                    </span>
-                  </div>
-                  <div className="flex flex-col items-center justify-center rounded-card bg-white p-3 border border-brand-border text-center">
-                    <VitalSurLogo variant="monocromatico" size="sm" />
-                    <span className="text-[10px] font-bold text-brand-ink-muted mt-2">
-                      Monocromático
-                    </span>
-                  </div>
-                </div>
+              <div className="rounded-card-lg bg-brand-surface p-5 border border-brand-border shadow-soft">
+                <p className="font-display text-2xl sm:text-3xl font-extrabold text-brand-ink">
+                  100%
+                </p>
+                <p className="text-xs font-semibold text-brand-ink-muted mt-1">
+                  Trazabilidad y Sin TACC
+                </p>
+              </div>
+              <div className="rounded-card-lg bg-brand-surface p-5 border border-brand-border shadow-soft">
+                <p className="font-display text-2xl sm:text-3xl font-extrabold text-brand-blue-dark">
+                  F. Varela
+                </p>
+                <p className="text-xs font-semibold text-brand-ink-muted mt-1">
+                  Zona Sur, Buenos Aires
+                </p>
               </div>
             </div>
           </div>
