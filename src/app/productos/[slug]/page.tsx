@@ -118,31 +118,39 @@ export default function ProductDetailPage() {
 
         {/* Bloque principal de producto */}
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 items-start">
-          {/* Galería vectorial de 3 vistas */}
+          {/* Galería de imágenes del producto */}
           <div className="lg:col-span-6 space-y-3">
-            <div className="relative flex aspect-square w-full max-w-[480px] mx-auto items-center justify-center rounded-card-lg bg-brand-surface border border-brand-border p-6 shadow-soft">
+            <div
+              className={`relative flex aspect-square w-full max-w-[480px] mx-auto items-center justify-center overflow-hidden rounded-card-lg bg-brand-surface border border-brand-border shadow-soft ${
+                activeImageUrl ? "p-0" : "p-6"
+              }`}
+            >
               {product.badgeText && (
-                <span className="absolute top-5 left-5 inline-flex items-center gap-1.5 rounded-pill bg-brand-green px-3.5 py-1 text-xs font-bold text-white">
+                <span className="absolute top-4 left-4 z-10 inline-flex items-center gap-1.5 rounded-pill bg-brand-green px-3.5 py-1 text-xs font-bold text-white shadow-sm">
                   <Sparkles className="h-3.5 w-3.5" strokeWidth={2} />
                   {product.badgeText}
                 </span>
               )}
-              <div className="h-64 w-64 sm:h-72 sm:w-72 transition-transform duration-300">
+              <div
+                className={`transition-transform duration-300 ${
+                  activeImageUrl ? "h-full w-full" : "h-64 w-64 sm:h-72 sm:w-72"
+                }`}
+              >
                 <ProductVectorArt
                   type={product.illustrationType}
                   accentColor={product.accentColor}
                   brand={product.brand}
                   imageUrl={activeImageUrl}
                   alt={product.name}
-                  view={selectedView}
+                  view="front"
                 />
               </div>
             </div>
 
-            {/* Miniaturas de galería e ilustraciones */}
-            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5">
-              {galleryImages.length > 1 ? (
-                galleryImages.map((imgUrl, idx) => (
+            {/* Miniaturas de galería cuando hay más de 1 imagen */}
+            {galleryImages.length > 1 && (
+              <div className="grid grid-cols-4 gap-2.5 max-w-[480px] mx-auto">
+                {galleryImages.map((imgUrl, idx) => (
                   <button
                     key={`${imgUrl}-${idx}`}
                     type="button"
@@ -150,80 +158,25 @@ export default function ProductDetailPage() {
                       setSelectedView("front");
                       setSelectedImageIndex(idx);
                     }}
-                    className={`flex flex-col items-center gap-1.5 rounded-card p-2.5 border text-[11px] font-bold transition-all ${
-                      selectedView === "front" && selectedImageIndex === idx
-                        ? "border-brand-green bg-brand-green-soft/50 text-brand-green-dark shadow-sm"
-                        : "border-brand-border bg-white text-brand-ink-muted hover:border-brand-green/50"
+                    aria-label={`Ver imagen ${idx + 1} de ${product.name}`}
+                    className={`aspect-square overflow-hidden rounded-card border transition-all ${
+                      selectedImageIndex === idx
+                        ? "border-brand-green ring-2 ring-brand-green/30 shadow-sm"
+                        : "border-brand-border bg-white hover:border-brand-green/50 opacity-80 hover:opacity-100"
                     }`}
                   >
-                    <div className="h-12 w-12">
-                      <ProductVectorArt
-                        type={product.illustrationType}
-                        accentColor={product.accentColor}
-                        brand={product.brand}
-                        imageUrl={imgUrl}
-                        alt={`${product.name} ${idx + 1}`}
-                        view="front"
-                      />
-                    </div>
-                    <span>Foto {idx + 1}</span>
-                  </button>
-                ))
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedView("front");
-                    setSelectedImageIndex(0);
-                  }}
-                  className={`flex flex-col items-center gap-1.5 rounded-card p-2.5 border text-[11px] font-bold transition-all ${
-                    selectedView === "front"
-                      ? "border-brand-green bg-brand-green-soft/50 text-brand-green-dark shadow-sm"
-                      : "border-brand-border bg-white text-brand-ink-muted hover:border-brand-green/50"
-                  }`}
-                >
-                  <div className="h-12 w-12">
                     <ProductVectorArt
                       type={product.illustrationType}
                       accentColor={product.accentColor}
                       brand={product.brand}
-                      imageUrl={activeImageUrl}
-                      alt={product.name}
+                      imageUrl={imgUrl}
+                      alt={`${product.name} ${idx + 1}`}
                       view="front"
                     />
-                  </div>
-                  <span>Envase Frontal</span>
-                </button>
-              )}
-
-              {[
-                { id: "nutrition", label: "Ficha Nutricional" },
-                { id: "detail", label: "Dosificador / Pureza" },
-              ].map((v) => (
-                <button
-                  key={v.id}
-                  type="button"
-                  onClick={() =>
-                    setSelectedView(v.id as "front" | "nutrition" | "detail")
-                  }
-                  className={`flex flex-col items-center gap-1.5 rounded-card p-2.5 border text-[11px] font-bold transition-all ${
-                    selectedView === v.id
-                      ? "border-brand-green bg-brand-green-soft/50 text-brand-green-dark shadow-sm"
-                      : "border-brand-border bg-white text-brand-ink-muted hover:border-brand-green/50"
-                  }`}
-                >
-                  <div className="h-12 w-12">
-                    <ProductVectorArt
-                      type={product.illustrationType}
-                      accentColor={product.accentColor}
-                      brand={product.brand}
-                      view={v.id as "front" | "nutrition" | "detail"}
-                    />
-                  </div>
-                  <span>{v.label}</span>
-                </button>
-              ))}
-            </div>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Información de compra y variantes */}

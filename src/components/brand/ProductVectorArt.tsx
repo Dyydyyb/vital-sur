@@ -12,6 +12,7 @@ interface ProductVectorArtProps {
   alt?: string;
   view?: "front" | "nutrition" | "detail";
   className?: string;
+  imageClassName?: string;
   onImageStatusChange?: (failed: boolean) => void;
 }
 
@@ -26,6 +27,7 @@ export function ProductVectorArt({
   alt,
   view = "front",
   className = "w-full h-full",
+  imageClassName,
   onImageStatusChange,
 }: ProductVectorArtProps) {
   const [imgError, setImgError] = useState(false);
@@ -48,7 +50,7 @@ export function ProductVectorArt({
           onImageStatusChange?.(true);
         }}
         loading="lazy"
-        className={`${className} object-contain rounded-xl`}
+        className={imageClassName || `${className} object-cover`}
       />
     );
   }

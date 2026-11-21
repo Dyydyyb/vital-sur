@@ -55,12 +55,18 @@ export function ProductCard({ product }: ProductCardProps) {
         )}
       </div>
 
-      {/* Ilustración vectorial del envase */}
+      {/* Imagen del producto o ilustración vectorial del envase */}
       <Link
         href={`/productos/${product.slug}`}
-        className="relative mb-4 flex aspect-square w-full items-center justify-center overflow-hidden rounded-card bg-brand-surface p-5 transition-colors duration-300 group-hover:bg-brand-surfaceAlt/70"
+        className={`relative mb-4 flex aspect-square w-full items-center justify-center overflow-hidden rounded-card bg-brand-surface transition-colors duration-300 group-hover:bg-brand-surfaceAlt/70 ${
+          product.imageUrl ? "p-0" : "p-5"
+        }`}
       >
-        <div className="h-44 w-44 transition-transform duration-300 ease-natural group-hover:scale-105">
+        <div
+          className={`transition-transform duration-300 ease-natural group-hover:scale-105 ${
+            product.imageUrl ? "h-full w-full" : "h-44 w-44"
+          }`}
+        >
           <ProductVectorArt
             type={product.illustrationType}
             accentColor={product.accentColor}
