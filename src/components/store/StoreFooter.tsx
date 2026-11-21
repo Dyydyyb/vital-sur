@@ -5,7 +5,6 @@ import Link from "next/link";
 import {
   MapPin,
   Phone,
-  Mail,
   Clock,
   ShieldCheck,
   Truck,
@@ -145,13 +144,6 @@ export function StoreFooter() {
                   strokeWidth={2}
                 />
                 <span>{db.settings.phone}</span>
-              </li>
-              <li className="flex items-center gap-2.5">
-                <Mail
-                  className="h-4 w-4 shrink-0 text-brand-green"
-                  strokeWidth={2}
-                />
-                <span>{db.settings.email}</span>
               </li>
               <li className="flex items-center gap-2.5">
                 <Clock
