@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { IllustrationType } from "@/lib/types";
+import { normalizeProductImageUrl } from "@/lib/image-url";
 
 interface ProductVectorArtProps {
   type: IllustrationType | string;
@@ -11,6 +12,7 @@ interface ProductVectorArtProps {
   alt?: string;
   view?: "front" | "nutrition" | "detail";
   className?: string;
+  onImageStatusChange?: (failed: boolean) => void;
 }
 
 /**
@@ -24,27 +26,27 @@ export function ProductVectorArt({
   alt,
   view = "front",
   className = "w-full h-full",
+  onImageStatusChange,
 }: ProductVectorArtProps) {
   const [imgError, setImgError] = useState(false);
+  const normalizedUrl = normalizeProductImageUrl(imageUrl);
 
   useEffect(() => {
     setImgError(false);
-  }, [imageUrl]);
+    onImageStatusChange?.(false);
+  }, [normalizedUrl, onImageStatusChange]);
 
-  const trimmedUrl = imageUrl?.trim();
-  const isSafeUrl = Boolean(
-    trimmedUrl &&
-      (trimmedUrl.startsWith("https://") ||
-        trimmedUrl.startsWith("http://") ||
-        trimmedUrl.startsWith("/"))
-  );
-
-  if (view === "front" && isSafeUrl && !imgError) {
+  if (view === "front" && normalizedUrl && !imgError) {
     return (
       <img
-        src={trimmedUrl}
+        src={normalizedUrl}
         alt={alt || brand}
-        onError={() => setImgError(true)}
+        referrerPolicy="no-referrer"
+        onLoad={() => onImageStatusChange?.(false)}
+        onError={() => {
+          setImgError(true);
+          onImageStatusChange?.(true);
+        }}
         loading="lazy"
         className={`${className} object-contain rounded-xl`}
       />

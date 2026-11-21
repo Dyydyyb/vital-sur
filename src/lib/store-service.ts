@@ -222,9 +222,19 @@ async function syncCategoriesToSupabase(client: SupabaseClient, categories: Cate
 }
 
 export async function persistFullStateToDb(nextState: DatabaseState): Promise<DatabaseState> {
-  if (isSupabaseConfigured()) {
-    const client = getSupabaseAdmin();
-    if (client) {
+  if (!isSupabaseConfigured()) {
+    if (process.env.VERCEL) {
+      throw new StoreConflictError(
+        "Supabase no está configurado en Vercel. Agregá NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY y SUPABASE_SERVICE_ROLE_KEY en las variables de entorno de Vercel.",
+        503
+      );
+    }
+    writeDatabase(nextState);
+    return nextState;
+  }
+
+  const client = getSupabaseAdmin();
+  if (client) {
       // 1. Configuración general
       const { error: settingsErr } = await client.from("store_settings").upsert({
         id: "default",
@@ -327,10 +337,9 @@ export async function persistFullStateToDb(nextState: DatabaseState): Promise<Da
         nextCoupons.map(mapCouponToDb),
         nextCoupons.map((c) => c.id)
       );
-    }
   }
 
   writeDatabase(nextState);
-  return isSupabaseConfigured() ? await loadAuthoritativeDb() : nextState;
+  return await loadAuthoritativeDb();
 }
 

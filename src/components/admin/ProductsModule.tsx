@@ -17,6 +17,7 @@ import {
 import { Product, IllustrationType } from "@/lib/types";
 import { useVitalSur } from "@/context/VitalSurContext";
 import { formatARS, escapeCsvCell } from "@/lib/format";
+import { normalizeProductImageUrl } from "@/lib/image-url";
 import { ProductVectorArt } from "@/components/brand/ProductVectorArt";
 
 const ILLUSTRATION_OPTIONS: { value: IllustrationType; label: string }[] = [
@@ -133,7 +134,7 @@ export function ProductsModule() {
     await saveProduct({
       ...editingProduct,
       slug,
-      imageUrl: editingProduct.imageUrl?.trim() || undefined,
+      imageUrl: normalizeProductImageUrl(editingProduct.imageUrl),
       flavors: flavors.length ? flavors : ["Clásico"],
       sizes: sizes.length ? sizes : ["Estándar"],
     });
@@ -693,8 +694,8 @@ export function ProductsModule() {
                       )}
                     </div>
                     <input
-                      type="url"
-                      placeholder="https://ejemplo.com/imagen-producto.png"
+                      type="text"
+                      placeholder="https://drive.google.com/file/d/... o https://ejemplo.com/imagen.png"
                       value={editingProduct.imageUrl || ""}
                       onChange={(e) =>
                         setEditingProduct({
@@ -705,7 +706,7 @@ export function ProductsModule() {
                       className="w-full rounded-2xl border border-brand-border bg-white px-3.5 py-2 text-xs text-brand-ink focus:border-brand-green focus:outline-none"
                     />
                     <p className="text-[11px] text-brand-ink-muted">
-                      Pegá una URL directa (`https://...`). Si la dejás vacía o falla la carga, se mostrará la ilustración vectorial seleccionada.
+                      Podés pegar un link directo o compartido de Google Drive (el archivo debe tener permiso &quot;Cualquier persona con el enlace&quot;). Si la dejás vacía, usa la ilustración SVG.
                     </p>
                   </div>
                 </div>
