@@ -241,11 +241,10 @@ export default function HomePage() {
             {HERO_SLIDES.map((slide, idx) => (
               <div
                 key={slide.id}
-                className={`absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out ${
-                  idx === heroSlideIndex
+                className={`absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out ${idx === heroSlideIndex
                     ? "opacity-100 z-0"
                     : "opacity-0 -z-10 pointer-events-none"
-                }`}
+                  }`}
               >
                 {/* Capa atmosférica difuminada solo en móvil para cubrir el alto vertical sin franjas duras */}
                 <img
@@ -258,9 +257,8 @@ export default function HomePage() {
                 <img
                   src={slide.image}
                   alt={slide.alt}
-                  className={`relative w-full h-full object-contain md:object-cover object-center ${
-                    idx === heroSlideIndex ? "md:animate-hero-kenburns" : ""
-                  }`}
+                  className={`relative w-full h-full object-contain md:object-cover object-center ${idx === heroSlideIndex ? "md:animate-hero-kenburns" : ""
+                    }`}
                 />
               </div>
             ))}
@@ -366,11 +364,10 @@ export default function HomePage() {
                   type="button"
                   onClick={() => setHeroSlideIndex(idx)}
                   aria-label={`Ir al slide ${idx + 1}`}
-                  className={`h-2 rounded-full transition-all duration-300 ${
-                    idx === heroSlideIndex
+                  className={`h-2 rounded-full transition-all duration-300 ${idx === heroSlideIndex
                       ? "w-8 bg-[#6EE7B7]"
                       : "w-2.5 bg-white/40 hover:bg-white/75"
-                  }`}
+                    }`}
                 />
               ))}
             </div>
@@ -479,11 +476,10 @@ export default function HomePage() {
                   <button
                     type="button"
                     onClick={() => setSelectedFeaturedCat("all")}
-                    className={`rounded-pill px-3.5 py-1.5 text-xs font-bold transition-all duration-200 ${
-                      selectedFeaturedCat === "all"
+                    className={`rounded-pill px-3.5 py-1.5 text-xs font-bold transition-all duration-200 ${selectedFeaturedCat === "all"
                         ? "bg-brand-green text-white shadow-sm"
                         : "bg-white text-brand-ink border border-brand-border hover:border-brand-green"
-                    }`}
+                      }`}
                   >
                     Destacados
                   </button>
@@ -492,11 +488,10 @@ export default function HomePage() {
                       key={cat.id}
                       type="button"
                       onClick={() => setSelectedFeaturedCat(cat.id)}
-                      className={`rounded-pill px-3.5 py-1.5 text-xs font-bold transition-all duration-200 ${
-                        selectedFeaturedCat === cat.id
+                      className={`rounded-pill px-3.5 py-1.5 text-xs font-bold transition-all duration-200 ${selectedFeaturedCat === cat.id
                           ? "bg-brand-green text-white shadow-sm"
                           : "bg-white text-brand-ink border border-brand-border hover:border-brand-green"
-                      }`}
+                        }`}
                     >
                       {cat.name}
                     </button>
@@ -741,11 +736,10 @@ export default function HomePage() {
                     type="button"
                     onClick={() => setTestimonialIndex(idx)}
                     aria-label={`Ver testimonio ${idx + 1}`}
-                    className={`h-2 rounded-pill transition-all duration-300 ${
-                      testimonialIndex === idx
+                    className={`h-2 rounded-pill transition-all duration-300 ${testimonialIndex === idx
                         ? "w-8 bg-brand-green"
                         : "w-2 bg-brand-border hover:bg-brand-green/40"
-                    }`}
+                      }`}
                   />
                 ))}
               </div>

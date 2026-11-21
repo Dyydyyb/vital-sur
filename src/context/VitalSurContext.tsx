@@ -375,6 +375,7 @@ export function VitalSurProvider({ children }: { children: React.ReactNode }) {
             stock: product.stock,
             illustrationType: product.illustrationType,
             accentColor: product.accentColor,
+            imageUrl: product.imageUrl,
           },
         ];
       });

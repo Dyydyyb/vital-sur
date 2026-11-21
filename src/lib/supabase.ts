@@ -49,7 +49,7 @@ export function mapCategoryFromDb(row: any): Category {
 }
 
 export function mapProductFromDb(row: any): Product {
-  const nutrition = typeof row.nutrition_facts === "string"
+  const rawNutrition = typeof row.nutrition_facts === "string"
     ? JSON.parse(row.nutrition_facts)
     : (row.nutrition_facts || {
         servingSize: "30 g (1 scoop)",
@@ -63,6 +63,12 @@ export function mapProductFromDb(row: any): Product {
         ingredients: "Proteína de suero de máxima pureza, saborizante natural y stevia.",
         allergens: "Contiene derivados lácteos. Libre de gluten (Sin TACC).",
       });
+
+  const { __imageUrl, ...nutrition } = rawNutrition || {};
+  const resolvedImageUrl =
+    (typeof row.image_url === "string" && row.image_url.trim()) ||
+    (typeof __imageUrl === "string" && __imageUrl.trim()) ||
+    undefined;
 
   return {
     id: row.id,
@@ -87,6 +93,7 @@ export function mapProductFromDb(row: any): Product {
     nutritionFacts: nutrition,
     illustrationType: row.illustration_type || "whey-jar",
     accentColor: row.accent_color || "#2E9E6B",
+    imageUrl: resolvedImageUrl,
     badgeText: row.badge_text || undefined,
     soldCount: Number(row.sold_count || 0),
     createdAt: row.created_at || new Date().toISOString(),
@@ -232,6 +239,12 @@ export function mapCategoryToDb(c: Category) {
 }
 
 export function mapProductToDb(p: Product) {
+  const trimmedImage = p.imageUrl?.trim();
+  const nutritionWithImage = {
+    ...(p.nutritionFacts || {}),
+    ...(trimmedImage ? { __imageUrl: trimmedImage } : {}),
+  };
+
   return {
     id: p.id,
     sku: p.sku,
@@ -252,7 +265,7 @@ export function mapProductToDb(p: Product) {
     featured: p.featured ?? false,
     flavors: p.flavors || ["Clásico"],
     sizes: p.sizes || ["Estándar"],
-    nutrition_facts: p.nutritionFacts || {},
+    nutrition_facts: nutritionWithImage,
     illustration_type: p.illustrationType || "whey-jar",
     accent_color: p.accentColor || "#2E9E6B",
     sold_count: p.soldCount || 0,

@@ -82,6 +82,7 @@ CREATE TABLE IF NOT EXISTS public.products (
     tags JSONB NOT NULL DEFAULT '[]'::jsonb,
     illustration_type VARCHAR(60) NOT NULL DEFAULT 'jar',
     accent_color VARCHAR(30) NOT NULL DEFAULT '#2E9E6B',
+    image_url TEXT,
     sold_count INTEGER NOT NULL DEFAULT 0,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()

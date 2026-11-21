@@ -1,25 +1,55 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import { IllustrationType } from "@/lib/types";
 
 interface ProductVectorArtProps {
   type: IllustrationType | string;
   accentColor?: string;
   brand?: string;
+  imageUrl?: string;
+  alt?: string;
   view?: "front" | "nutrition" | "detail";
   className?: string;
 }
 
 /**
- * Ilustraciones 100% vectoriales (SVG) de suplementos y accesorios de Vital Sur.
- * Garantiza cero imágenes raster de decoración y una estética orgánica, limpia y profesional.
+ * Renderiza la imagen real del producto (si tiene imageUrl válida) o su ilustración vectorial SVG de Vital Sur.
  */
 export function ProductVectorArt({
   type,
   accentColor = "#2E9E6B",
   brand = "VITAL SUR",
+  imageUrl,
+  alt,
   view = "front",
   className = "w-full h-full",
 }: ProductVectorArtProps) {
+  const [imgError, setImgError] = useState(false);
+
+  useEffect(() => {
+    setImgError(false);
+  }, [imageUrl]);
+
+  const trimmedUrl = imageUrl?.trim();
+  const isSafeUrl = Boolean(
+    trimmedUrl &&
+      (trimmedUrl.startsWith("https://") ||
+        trimmedUrl.startsWith("http://") ||
+        trimmedUrl.startsWith("/"))
+  );
+
+  if (view === "front" && isSafeUrl && !imgError) {
+    return (
+      <img
+        src={trimmedUrl}
+        alt={alt || brand}
+        onError={() => setImgError(true)}
+        loading="lazy"
+        className={`${className} object-contain rounded-xl`}
+      />
+    );
+  }
   if (view === "nutrition") {
     return (
       <svg

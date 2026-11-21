@@ -228,6 +228,8 @@ export default function FullCartPage() {
                             type={item.illustrationType}
                             accentColor={item.accentColor}
                             brand={item.brand}
+                            imageUrl={item.imageUrl}
+                            alt={item.name}
                           />
                         </div>
                         <div>

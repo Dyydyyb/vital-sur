@@ -133,6 +133,7 @@ export function ProductsModule() {
     await saveProduct({
       ...editingProduct,
       slug,
+      imageUrl: editingProduct.imageUrl?.trim() || undefined,
       flavors: flavors.length ? flavors : ["Clásico"],
       sizes: sizes.length ? sizes : ["Estándar"],
     });
@@ -401,6 +402,8 @@ export function ProductsModule() {
                             type={product.illustrationType}
                             accentColor={product.accentColor}
                             brand={product.brand}
+                            imageUrl={product.imageUrl}
+                            alt={product.name}
                           />
                         </div>
                         <div>
@@ -654,6 +657,57 @@ export function ProductsModule() {
                       </option>
                     ))}
                   </select>
+                </div>
+              </div>
+
+              {/* URL de Imagen Real del Producto + Vista Previa */}
+              <div className="rounded-2xl border border-brand-border bg-brand-surface/60 p-3.5">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                  <div className="h-16 w-16 shrink-0 rounded-xl bg-white border border-brand-border p-1.5 flex items-center justify-center overflow-hidden">
+                    <ProductVectorArt
+                      type={editingProduct.illustrationType}
+                      accentColor={editingProduct.accentColor}
+                      brand={editingProduct.brand}
+                      imageUrl={editingProduct.imageUrl}
+                      alt={editingProduct.name || "Vista previa"}
+                    />
+                  </div>
+                  <div className="flex-1 space-y-1.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <label className="block font-bold text-brand-ink">
+                        Imagen del Producto (URL opcional)
+                      </label>
+                      {editingProduct.imageUrl && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setEditingProduct({
+                              ...editingProduct,
+                              imageUrl: "",
+                            })
+                          }
+                          className="text-[11px] font-bold text-red-600 hover:underline"
+                        >
+                          Quitar imagen
+                        </button>
+                      )}
+                    </div>
+                    <input
+                      type="url"
+                      placeholder="https://ejemplo.com/imagen-producto.png"
+                      value={editingProduct.imageUrl || ""}
+                      onChange={(e) =>
+                        setEditingProduct({
+                          ...editingProduct,
+                          imageUrl: e.target.value,
+                        })
+                      }
+                      className="w-full rounded-2xl border border-brand-border bg-white px-3.5 py-2 text-xs text-brand-ink focus:border-brand-green focus:outline-none"
+                    />
+                    <p className="text-[11px] text-brand-ink-muted">
+                      Pegá una URL directa (`https://...`). Si la dejás vacía o falla la carga, se mostrará la ilustración vectorial seleccionada.
+                    </p>
+                  </div>
                 </div>
               </div>
 

@@ -419,11 +419,10 @@ export default function CheckoutPage() {
                   <button
                     type="button"
                     onClick={() => setPaymentMethod("mercado_pago")}
-                    className={`flex items-start gap-3 rounded-card p-4 border text-left transition-all ${
-                      paymentMethod === "mercado_pago"
+                    className={`flex items-start gap-3 rounded-card p-4 border text-left transition-all ${paymentMethod === "mercado_pago"
                         ? "border-brand-green bg-brand-green-soft/50 shadow-sm"
                         : "border-brand-border bg-brand-surface hover:border-brand-green/50"
-                    }`}
+                      }`}
                   >
                     <CreditCard
                       className="h-5 w-5 shrink-0 text-brand-blue-dark mt-0.5"
@@ -443,11 +442,10 @@ export default function CheckoutPage() {
                   <button
                     type="button"
                     onClick={() => setPaymentMethod("transferencia")}
-                    className={`flex items-start gap-3 rounded-card p-4 border text-left transition-all ${
-                      paymentMethod === "transferencia"
+                    className={`flex items-start gap-3 rounded-card p-4 border text-left transition-all ${paymentMethod === "transferencia"
                         ? "border-brand-green bg-brand-green-soft/50 shadow-sm"
                         : "border-brand-border bg-brand-surface hover:border-brand-green/50"
-                    }`}
+                      }`}
                   >
                     <Landmark
                       className="h-5 w-5 shrink-0 text-brand-green mt-0.5"
@@ -624,8 +622,8 @@ export default function CheckoutPage() {
                     {isSubmitting
                       ? "Procesando tu pedido..."
                       : paymentMethod === "mercado_pago"
-                      ? `Pagar ${formatARS(cartTotal)} con Mercado Pago`
-                      : `Confirmar Pedido por ${formatARS(cartTotal)}`}
+                        ? `Pagar ${formatARS(cartTotal)} con Mercado Pago`
+                        : `Confirmar Pedido por ${formatARS(cartTotal)}`}
                   </span>
                 </button>
               </div>

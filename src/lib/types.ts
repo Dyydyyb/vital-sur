@@ -85,6 +85,7 @@ export interface Product {
   nutritionFacts: NutritionFacts;
   illustrationType: IllustrationType;
   accentColor: string;
+  imageUrl?: string;
   badgeText?: string;
   soldCount: number;
   createdAt: string;
@@ -105,6 +106,7 @@ export interface CartItem {
   stock: number;
   illustrationType: IllustrationType;
   accentColor: string;
+  imageUrl?: string;
 }
 
 export interface OrderItem {

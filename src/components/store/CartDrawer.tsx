@@ -180,6 +180,8 @@ export function CartDrawer() {
                       type={item.illustrationType}
                       accentColor={item.accentColor}
                       brand={item.brand}
+                      imageUrl={item.imageUrl}
+                      alt={item.name}
                     />
                   </div>
                   <div className="flex flex-1 flex-col justify-between">

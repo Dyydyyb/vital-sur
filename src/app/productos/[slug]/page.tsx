@@ -123,6 +123,8 @@ export default function ProductDetailPage() {
                   type={product.illustrationType}
                   accentColor={product.accentColor}
                   brand={product.brand}
+                  imageUrl={product.imageUrl}
+                  alt={product.name}
                   view={selectedView}
                 />
               </div>
@@ -152,6 +154,8 @@ export default function ProductDetailPage() {
                       type={product.illustrationType}
                       accentColor={product.accentColor}
                       brand={product.brand}
+                      imageUrl={product.imageUrl}
+                      alt={product.name}
                       view={v.id as "front" | "nutrition" | "detail"}
                     />
                   </div>

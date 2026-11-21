@@ -65,6 +65,8 @@ export function ProductCard({ product }: ProductCardProps) {
             type={product.illustrationType}
             accentColor={product.accentColor}
             brand={product.brand}
+            imageUrl={product.imageUrl}
+            alt={product.name}
           />
         </div>
         <span className="absolute bottom-3 right-3 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-brand-ink shadow-sm opacity-0 translate-y-1 transition-all duration-200 group-hover:opacity-100 group-hover:translate-y-0">

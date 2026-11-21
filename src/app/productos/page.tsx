@@ -166,11 +166,10 @@ function CatalogContent() {
           <button
             type="button"
             onClick={() => setSelectedCategorySlug("all")}
-            className={`rounded-pill px-3.5 py-1.5 text-xs font-bold shrink-0 scroll-snap-align-start transition-all ${
-              selectedCategorySlug === "all"
+            className={`rounded-pill px-3.5 py-1.5 text-xs font-bold shrink-0 scroll-snap-align-start transition-all ${selectedCategorySlug === "all"
                 ? "bg-brand-green text-white shadow-sm"
                 : "bg-white border border-brand-border text-brand-ink hover:border-brand-green"
-            }`}
+              }`}
           >
             Todas ({db.products.filter((p) => p.active).length})
           </button>
@@ -179,11 +178,10 @@ function CatalogContent() {
               key={cat.id}
               type="button"
               onClick={() => setSelectedCategorySlug(cat.slug)}
-              className={`inline-flex items-center gap-1.5 rounded-pill px-3.5 py-1.5 text-xs font-bold shrink-0 scroll-snap-align-start transition-all ${
-                selectedCategorySlug === cat.slug
+              className={`inline-flex items-center gap-1.5 rounded-pill px-3.5 py-1.5 text-xs font-bold shrink-0 scroll-snap-align-start transition-all ${selectedCategorySlug === cat.slug
                   ? "bg-brand-green text-white shadow-sm"
                   : "bg-white border border-brand-border text-brand-ink hover:border-brand-green"
-              }`}
+                }`}
             >
               <CategoryIcon name={cat.iconName} className="h-3.5 w-3.5" />
               <span>{cat.name}</span>
@@ -223,11 +221,10 @@ function CatalogContent() {
                 <button
                   type="button"
                   onClick={() => setSelectedCategorySlug("all")}
-                  className={`flex w-full items-center justify-between rounded-2xl px-3 py-2 text-xs font-bold transition-colors ${
-                    selectedCategorySlug === "all"
+                  className={`flex w-full items-center justify-between rounded-2xl px-3 py-2 text-xs font-bold transition-colors ${selectedCategorySlug === "all"
                       ? "bg-brand-green text-white"
                       : "text-brand-ink hover:bg-brand-surface"
-                  }`}
+                    }`}
                 >
                   <span>Todas las categorías</span>
                   <span>
@@ -244,11 +241,10 @@ function CatalogContent() {
                       <button
                         type="button"
                         onClick={() => setSelectedCategorySlug(cat.slug)}
-                        className={`flex w-full items-center gap-2.5 rounded-2xl px-3 py-2 text-xs font-bold transition-colors ${
-                          isSelected
+                        className={`flex w-full items-center gap-2.5 rounded-2xl px-3 py-2 text-xs font-bold transition-colors ${isSelected
                             ? "bg-brand-green text-white"
                             : "text-brand-ink hover:bg-brand-surface"
-                        }`}
+                          }`}
                       >
                         <CategoryIcon
                           name={cat.iconName}
@@ -267,11 +263,10 @@ function CatalogContent() {
                               key={sub.id}
                               type="button"
                               onClick={() => setSelectedCategorySlug(sub.slug)}
-                              className={`block w-full text-left rounded-xl px-2.5 py-1.5 text-[11px] font-semibold transition-colors ${
-                                selectedCategorySlug === sub.slug
+                              className={`block w-full text-left rounded-xl px-2.5 py-1.5 text-[11px] font-semibold transition-colors ${selectedCategorySlug === sub.slug
                                   ? "bg-brand-green-soft text-brand-green-dark font-bold"
                                   : "text-brand-ink-muted hover:text-brand-green"
-                              }`}
+                                }`}
                             >
                               · {sub.name}
                             </button>
@@ -293,11 +288,10 @@ function CatalogContent() {
                 <button
                   type="button"
                   onClick={() => setSelectedBrand("all")}
-                  className={`block w-full text-left rounded-xl px-3 py-1.5 text-xs font-semibold ${
-                    selectedBrand === "all"
+                  className={`block w-full text-left rounded-xl px-3 py-1.5 text-xs font-semibold ${selectedBrand === "all"
                       ? "bg-brand-green-soft text-brand-green-dark font-bold"
                       : "text-brand-ink-muted hover:bg-brand-surface"
-                  }`}
+                    }`}
                 >
                   Todas las líneas
                 </button>
@@ -306,11 +300,10 @@ function CatalogContent() {
                     key={brand}
                     type="button"
                     onClick={() => setSelectedBrand(brand)}
-                    className={`block w-full text-left rounded-xl px-3 py-1.5 text-xs font-semibold ${
-                      selectedBrand === brand
+                    className={`block w-full text-left rounded-xl px-3 py-1.5 text-xs font-semibold ${selectedBrand === brand
                         ? "bg-brand-green-soft text-brand-green-dark font-bold"
                         : "text-brand-ink-muted hover:bg-brand-surface"
-                    }`}
+                      }`}
                   >
                     {brand}
                   </button>
@@ -388,10 +381,10 @@ function CatalogContent() {
                 onChange={(e) =>
                   setSortBy(
                     e.target.value as
-                      | "featured"
-                      | "price-asc"
-                      | "price-desc"
-                      | "name-asc"
+                    | "featured"
+                    | "price-asc"
+                    | "price-desc"
+                    | "name-asc"
                   )
                 }
                 className="rounded-pill border border-brand-border bg-white px-3.5 py-1.5 text-xs font-bold text-brand-ink focus:border-brand-green focus:outline-none"
