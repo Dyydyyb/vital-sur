@@ -1,8 +1,14 @@
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import { DatabaseState, Product, Category, Order, Customer, StockMovement, Coupon, StoreSettings } from "./types";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+const DEFAULT_PUBLIC_SUPABASE_URL = "https://kkpbhzcilnmbyrplssbz.supabase.co";
+const DEFAULT_PUBLIC_SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtrcGJoemNpbG5tYnlycGxzc2J6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQzMjM4MDQsImV4cCI6MjEwOTg5OTgwNH0.Qwi-TEenyuHI3Wr4dAZfWyklbMiLtPr2CznPPjOIdN4";
+
+const supabaseUrl =
+  process.env.NEXT_PUBLIC_SUPABASE_URL || DEFAULT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey =
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || DEFAULT_PUBLIC_SUPABASE_ANON_KEY;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
 
 export function isSupabaseConfigured(): boolean {
