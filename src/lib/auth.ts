@@ -36,9 +36,9 @@ export function verifyStaffCredentials(
   const password = passwordInput;
 
   const adminEmail = (
-    process.env.CRM_ADMIN_EMAIL || "admin@vitalsur.com.ar"
+    process.env.CRM_ADMIN_EMAIL || "familia"
   ).toLowerCase();
-  const adminPassword = process.env.CRM_ADMIN_PASSWORD || "VitalSur2026!";
+  const adminPassword = process.env.CRM_ADMIN_PASSWORD || "1656";
 
   const colabEmail = (
     process.env.CRM_COLLABORATOR_EMAIL || "colaborador@vitalsur.com.ar"

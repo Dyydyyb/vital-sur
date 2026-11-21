@@ -190,10 +190,11 @@ export default function AdminCrmPage() {
           <form onSubmit={handleLoginSubmit} className="space-y-4 text-xs">
             <div>
               <label className="block font-bold text-brand-ink mb-1">
-                Correo Electrónico Corporativo
+                Usuario
               </label>
               <input
-                type="email"
+                type="text"
+                autoComplete="username"
                 required
                 value={loginEmail}
                 onChange={(e) => setLoginEmail(e.target.value)}
