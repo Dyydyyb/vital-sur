@@ -528,7 +528,7 @@ export default function HomePage() {
                 {displayedProducts.map((product) => (
                   <div
                     key={product.id}
-                    className="min-w-[270px] sm:min-w-[290px] md:min-w-0 shrink-0 scroll-snap-align-start"
+                    className="w-[270px] sm:w-[290px] md:w-auto min-w-0 shrink-0 scroll-snap-align-start"
                   >
                     <ProductCard product={product} />
                   </div>

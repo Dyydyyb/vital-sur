@@ -32,7 +32,7 @@ export function ProductCard({ product }: ProductCardProps) {
   };
 
   return (
-    <article className="group relative flex flex-col rounded-card-lg bg-white border border-brand-border/80 p-4 shadow-soft transition-all duration-300 ease-natural hover:-translate-y-1 hover:shadow-soft-md hover:border-brand-green/40">
+    <article className="group relative flex flex-col w-full min-w-0 overflow-hidden rounded-card-lg bg-white border border-brand-border/80 p-4 shadow-soft transition-all duration-300 ease-natural hover:-translate-y-1 hover:shadow-soft-md hover:border-brand-green/40">
       {/* Insignias superiores */}
       <div className="absolute top-6 left-6 right-6 z-10 flex items-center justify-between gap-2 pointer-events-none">
         {hasDiscount ? (
@@ -58,8 +58,8 @@ export function ProductCard({ product }: ProductCardProps) {
       {/* Imagen del producto o ilustración vectorial del envase */}
       <Link
         href={`/productos/${product.slug}`}
-        className={`relative mb-4 flex aspect-square w-full items-center justify-center overflow-hidden rounded-card bg-brand-surface transition-colors duration-300 group-hover:bg-brand-surfaceAlt/70 ${
-          product.imageUrl ? "p-0" : "p-5"
+        className={`relative mb-4 block aspect-square w-full overflow-hidden rounded-card bg-brand-surface transition-colors duration-300 group-hover:bg-brand-surfaceAlt/70 ${
+          product.imageUrl ? "p-0" : "flex items-center justify-center p-5"
         }`}
       >
         <div

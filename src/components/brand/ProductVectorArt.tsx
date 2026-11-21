@@ -50,7 +50,7 @@ export function ProductVectorArt({
           onImageStatusChange?.(true);
         }}
         loading="lazy"
-        className={imageClassName || `${className} object-cover`}
+        className={imageClassName || `block max-w-full max-h-full ${className} object-cover`}
       />
     );
   }
