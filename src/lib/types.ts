@@ -86,6 +86,7 @@ export interface Product {
   illustrationType: IllustrationType;
   accentColor: string;
   imageUrl?: string;
+  images?: string[];
   badgeText?: string;
   soldCount: number;
   createdAt: string;

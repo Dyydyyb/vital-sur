@@ -24,7 +24,7 @@ export function normalizeProductImageUrl(rawUrl?: string | null): string | undef
 
   const host = parsed.hostname.toLowerCase();
   if (host === "drive.google.com" || host === "docs.google.com") {
-    const fileMatch = parsed.pathname.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+    const fileMatch = parsed.pathname.match(/\/file\/(?:u\/\d+\/)?d\/([a-zA-Z0-9_-]+)/);
     const idParam = parsed.searchParams.get("id");
     const fileId = fileMatch?.[1] || idParam;
     if (fileId) {
@@ -33,4 +33,21 @@ export function normalizeProductImageUrl(rawUrl?: string | null): string | undef
   }
 
   return parsed.toString();
+}
+
+export function normalizeProductImages(
+  images?: (string | null | undefined)[],
+  primaryUrl?: string | null
+): string[] {
+  const seen = new Set<string>();
+  const result: string[] = [];
+  const candidates = [...(images || []), primaryUrl];
+  for (const raw of candidates) {
+    const normalized = normalizeProductImageUrl(raw);
+    if (normalized && !seen.has(normalized)) {
+      seen.add(normalized);
+      result.push(normalized);
+    }
+  }
+  return result;
 }

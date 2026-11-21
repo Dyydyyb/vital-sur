@@ -17,7 +17,7 @@ import {
 import { Product, IllustrationType } from "@/lib/types";
 import { useVitalSur } from "@/context/VitalSurContext";
 import { formatARS, escapeCsvCell } from "@/lib/format";
-import { normalizeProductImageUrl } from "@/lib/image-url";
+import { normalizeProductImageUrl, normalizeProductImages } from "@/lib/image-url";
 import { ProductVectorArt } from "@/components/brand/ProductVectorArt";
 
 const ILLUSTRATION_OPTIONS: { value: IllustrationType; label: string }[] = [
@@ -47,6 +47,8 @@ export function ProductsModule() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [flavorsText, setFlavorsText] = useState("");
   const [sizesText, setSizesText] = useState("");
+  const [newImageUrlInput, setNewImageUrlInput] = useState("");
+  const [failedImageUrls, setFailedImageUrls] = useState<Record<string, boolean>>({});
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const filteredProducts = db.products.filter((p) => {
@@ -100,13 +102,22 @@ export function ProductsModule() {
     };
     setFlavorsText(newProd.flavors.join(", "));
     setSizesText(newProd.sizes.join(", "));
+    setNewImageUrlInput("");
+    setFailedImageUrls({});
     setEditingProduct(newProd);
   };
 
   const handleOpenEdit = (prod: Product) => {
+    const initialImages = normalizeProductImages(prod.images, prod.imageUrl);
     setFlavorsText(prod.flavors.join(", "));
     setSizesText(prod.sizes.join(", "));
-    setEditingProduct({ ...prod });
+    setNewImageUrlInput("");
+    setFailedImageUrls({});
+    setEditingProduct({
+      ...prod,
+      imageUrl: initialImages[0],
+      images: initialImages,
+    });
   };
 
   const handleSaveForm = async (e: React.FormEvent) => {
@@ -131,13 +142,20 @@ export function ProductsModule() {
       .map((s) => s.trim())
       .filter(Boolean);
 
+    const finalImages = normalizeProductImages(
+      [...(editingProduct.images || []), newImageUrlInput],
+      editingProduct.imageUrl
+    );
+
     await saveProduct({
       ...editingProduct,
       slug,
-      imageUrl: normalizeProductImageUrl(editingProduct.imageUrl),
+      imageUrl: finalImages[0],
+      images: finalImages.length > 0 ? finalImages : undefined,
       flavors: flavors.length ? flavors : ["Clásico"],
       sizes: sizes.length ? sizes : ["Estándar"],
     });
+    setNewImageUrlInput("");
     setEditingProduct(null);
   };
 
@@ -661,55 +679,150 @@ export function ProductsModule() {
                 </div>
               </div>
 
-              {/* URL de Imagen Real del Producto + Vista Previa */}
-              <div className="rounded-2xl border border-brand-border bg-brand-surface/60 p-3.5">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                  <div className="h-16 w-16 shrink-0 rounded-xl bg-white border border-brand-border p-1.5 flex items-center justify-center overflow-hidden">
-                    <ProductVectorArt
-                      type={editingProduct.illustrationType}
-                      accentColor={editingProduct.accentColor}
-                      brand={editingProduct.brand}
-                      imageUrl={editingProduct.imageUrl}
-                      alt={editingProduct.name || "Vista previa"}
-                    />
-                  </div>
-                  <div className="flex-1 space-y-1.5">
-                    <div className="flex items-center justify-between gap-2">
-                      <label className="block font-bold text-brand-ink">
-                        Imagen del Producto (URL opcional)
-                      </label>
-                      {editingProduct.imageUrl && (
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setEditingProduct({
-                              ...editingProduct,
-                              imageUrl: "",
-                            })
-                          }
-                          className="text-[11px] font-bold text-red-600 hover:underline"
-                        >
-                          Quitar imagen
-                        </button>
-                      )}
-                    </div>
-                    <input
-                      type="text"
-                      placeholder="https://drive.google.com/file/d/... o https://ejemplo.com/imagen.png"
-                      value={editingProduct.imageUrl || ""}
-                      onChange={(e) =>
+              {/* Galería de Imágenes por URL (soporta múltiples fotos y links de Google Drive) */}
+              <div className="rounded-2xl border border-brand-border bg-brand-surface/60 p-4 space-y-3">
+                <div className="flex items-center justify-between gap-2">
+                  <label className="block font-bold text-brand-ink">
+                    Imágenes del Producto (URLs — podés cargar varias)
+                  </label>
+                  <span className="text-[11px] font-semibold text-brand-ink-muted">
+                    {(editingProduct.images || []).length} cargada(s)
+                  </span>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <input
+                    type="text"
+                    placeholder="https://drive.google.com/file/d/... o https://ejemplo.com/foto.png"
+                    value={newImageUrlInput}
+                    onChange={(e) => setNewImageUrlInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        const normalized = normalizeProductImageUrl(newImageUrlInput);
+                        if (!normalized) return;
+                        const nextImages = normalizeProductImages([
+                          ...(editingProduct.images || []),
+                          normalized,
+                        ]);
                         setEditingProduct({
                           ...editingProduct,
-                          imageUrl: e.target.value,
-                        })
+                          imageUrl: nextImages[0],
+                          images: nextImages,
+                        });
+                        setNewImageUrlInput("");
                       }
-                      className="w-full rounded-2xl border border-brand-border bg-white px-3.5 py-2 text-xs text-brand-ink focus:border-brand-green focus:outline-none"
-                    />
-                    <p className="text-[11px] text-brand-ink-muted">
-                      Podés pegar un link directo o compartido de Google Drive (el archivo debe tener permiso &quot;Cualquier persona con el enlace&quot;). Si la dejás vacía, usa la ilustración SVG.
-                    </p>
-                  </div>
+                    }}
+                    className="flex-1 rounded-2xl border border-brand-border bg-white px-3.5 py-2 text-xs text-brand-ink focus:border-brand-green focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const normalized = normalizeProductImageUrl(newImageUrlInput);
+                      if (!normalized) return;
+                      const nextImages = normalizeProductImages([
+                        ...(editingProduct.images || []),
+                        normalized,
+                      ]);
+                      setEditingProduct({
+                        ...editingProduct,
+                        imageUrl: nextImages[0],
+                        images: nextImages,
+                      });
+                      setNewImageUrlInput("");
+                    }}
+                    className="inline-flex items-center justify-center gap-1.5 rounded-pill bg-brand-green px-4 py-2 text-xs font-bold text-white hover:bg-brand-green-dark transition-colors shrink-0"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                    <span>Agregar imagen</span>
+                  </button>
                 </div>
+
+                {(editingProduct.images || []).length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                    {(editingProduct.images || []).map((imgUrl, idx) => (
+                      <div
+                        key={`${imgUrl}-${idx}`}
+                        className="flex items-center gap-3 rounded-2xl border border-brand-border bg-white p-2.5"
+                      >
+                        <div className="h-14 w-14 shrink-0 rounded-xl bg-brand-surface border border-brand-border p-1 flex items-center justify-center overflow-hidden">
+                          <ProductVectorArt
+                            type={editingProduct.illustrationType}
+                            accentColor={editingProduct.accentColor}
+                            brand={editingProduct.brand}
+                            imageUrl={imgUrl}
+                            alt={`${editingProduct.name || "Producto"} ${idx + 1}`}
+                            onImageStatusChange={(failed) =>
+                              setFailedImageUrls((prev) =>
+                                prev[imgUrl] === failed
+                                  ? prev
+                                  : { ...prev, [imgUrl]: failed }
+                              )
+                            }
+                          />
+                        </div>
+                        <div className="min-w-0 flex-1 space-y-1">
+                          <div className="flex items-center gap-1.5">
+                            {idx === 0 ? (
+                              <span className="rounded-pill bg-brand-green-soft px-2 py-0.5 text-[10px] font-bold text-brand-green-dark">
+                                Principal
+                              </span>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const reordered = [
+                                    imgUrl,
+                                    ...(editingProduct.images || []).filter(
+                                      (_, i) => i !== idx
+                                    ),
+                                  ];
+                                  setEditingProduct({
+                                    ...editingProduct,
+                                    imageUrl: reordered[0],
+                                    images: reordered,
+                                  });
+                                }}
+                                className="rounded-pill border border-brand-border px-2 py-0.5 text-[10px] font-bold text-brand-ink-muted hover:border-brand-green hover:text-brand-green"
+                              >
+                                Hacer principal
+                              </button>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const remaining = (
+                                  editingProduct.images || []
+                                ).filter((_, i) => i !== idx);
+                                setEditingProduct({
+                                  ...editingProduct,
+                                  imageUrl: remaining[0],
+                                  images: remaining,
+                                });
+                              }}
+                              className="ml-auto inline-flex items-center gap-1 text-[11px] font-bold text-red-600 hover:underline"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                              <span>Quitar</span>
+                            </button>
+                          </div>
+                          <p className="truncate text-[10px] text-brand-ink-muted">
+                            {imgUrl}
+                          </p>
+                          {failedImageUrls[imgUrl] && (
+                            <p className="text-[10px] font-semibold text-amber-700 leading-tight">
+                              No se pudo cargar la foto. Si es Google Drive, cambiá el permiso de &quot;Restringido&quot; a &quot;Cualquier persona con el enlace&quot;.
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-[11px] text-brand-ink-muted">
+                    Podés pegar links directos o de Google Drive (asegurate que el archivo tenga acceso &quot;Cualquier persona con el enlace&quot;). Si no cargás imágenes, se usará la ilustración SVG.
+                  </p>
+                )}
               </div>
 
               {/* Precios y Stock */}

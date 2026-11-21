@@ -36,6 +36,7 @@ export default function ProductDetailPage() {
   const [selectedView, setSelectedView] = useState<
     "front" | "nutrition" | "detail"
   >("front");
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
   const [selectedFlavor, setSelectedFlavor] = useState<string>("");
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [quantity, setQuantity] = useState<number>(1);
@@ -69,6 +70,14 @@ export default function ProductDetailPage() {
 
   const currentFlavor = selectedFlavor || product.flavors[0] || "Clásico";
   const currentSize = selectedSize || product.sizes[0] || "Estándar";
+  const galleryImages =
+    product.images && product.images.length > 0
+      ? product.images
+      : product.imageUrl
+        ? [product.imageUrl]
+        : [];
+  const activeImageUrl =
+    galleryImages[selectedImageIndex] || galleryImages[0] || product.imageUrl;
   const finalPrice = product.salePrice ?? product.price;
   const hasDiscount =
     product.salePrice !== null && product.salePrice < product.price;
@@ -123,17 +132,71 @@ export default function ProductDetailPage() {
                   type={product.illustrationType}
                   accentColor={product.accentColor}
                   brand={product.brand}
-                  imageUrl={product.imageUrl}
+                  imageUrl={activeImageUrl}
                   alt={product.name}
                   view={selectedView}
                 />
               </div>
             </div>
 
-            {/* Miniaturas de vista */}
-            <div className="grid grid-cols-3 gap-3">
+            {/* Miniaturas de galería e ilustraciones */}
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5">
+              {galleryImages.length > 1 ? (
+                galleryImages.map((imgUrl, idx) => (
+                  <button
+                    key={`${imgUrl}-${idx}`}
+                    type="button"
+                    onClick={() => {
+                      setSelectedView("front");
+                      setSelectedImageIndex(idx);
+                    }}
+                    className={`flex flex-col items-center gap-1.5 rounded-card p-2.5 border text-[11px] font-bold transition-all ${
+                      selectedView === "front" && selectedImageIndex === idx
+                        ? "border-brand-green bg-brand-green-soft/50 text-brand-green-dark shadow-sm"
+                        : "border-brand-border bg-white text-brand-ink-muted hover:border-brand-green/50"
+                    }`}
+                  >
+                    <div className="h-12 w-12">
+                      <ProductVectorArt
+                        type={product.illustrationType}
+                        accentColor={product.accentColor}
+                        brand={product.brand}
+                        imageUrl={imgUrl}
+                        alt={`${product.name} ${idx + 1}`}
+                        view="front"
+                      />
+                    </div>
+                    <span>Foto {idx + 1}</span>
+                  </button>
+                ))
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedView("front");
+                    setSelectedImageIndex(0);
+                  }}
+                  className={`flex flex-col items-center gap-1.5 rounded-card p-2.5 border text-[11px] font-bold transition-all ${
+                    selectedView === "front"
+                      ? "border-brand-green bg-brand-green-soft/50 text-brand-green-dark shadow-sm"
+                      : "border-brand-border bg-white text-brand-ink-muted hover:border-brand-green/50"
+                  }`}
+                >
+                  <div className="h-12 w-12">
+                    <ProductVectorArt
+                      type={product.illustrationType}
+                      accentColor={product.accentColor}
+                      brand={product.brand}
+                      imageUrl={activeImageUrl}
+                      alt={product.name}
+                      view="front"
+                    />
+                  </div>
+                  <span>Envase Frontal</span>
+                </button>
+              )}
+
               {[
-                { id: "front", label: "Envase Frontal" },
                 { id: "nutrition", label: "Ficha Nutricional" },
                 { id: "detail", label: "Dosificador / Pureza" },
               ].map((v) => (
@@ -143,19 +206,17 @@ export default function ProductDetailPage() {
                   onClick={() =>
                     setSelectedView(v.id as "front" | "nutrition" | "detail")
                   }
-                  className={`flex flex-col items-center gap-2 rounded-card p-3 border text-xs font-bold transition-all ${
+                  className={`flex flex-col items-center gap-1.5 rounded-card p-2.5 border text-[11px] font-bold transition-all ${
                     selectedView === v.id
                       ? "border-brand-green bg-brand-green-soft/50 text-brand-green-dark shadow-sm"
                       : "border-brand-border bg-white text-brand-ink-muted hover:border-brand-green/50"
                   }`}
                 >
-                  <div className="h-14 w-14">
+                  <div className="h-12 w-12">
                     <ProductVectorArt
                       type={product.illustrationType}
                       accentColor={product.accentColor}
                       brand={product.brand}
-                      imageUrl={product.imageUrl}
-                      alt={product.name}
                       view={v.id as "front" | "nutrition" | "detail"}
                     />
                   </div>

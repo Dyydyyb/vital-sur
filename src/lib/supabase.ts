@@ -70,11 +70,20 @@ export function mapProductFromDb(row: any): Product {
         allergens: "Contiene derivados lácteos. Libre de gluten (Sin TACC).",
       });
 
-  const { __imageUrl, ...nutrition } = rawNutrition || {};
-  const resolvedImageUrl =
+  const { __imageUrl, __images, ...nutrition } = rawNutrition || {};
+  const rawImageList = Array.isArray(__images)
+    ? __images.filter((u): u is string => typeof u === "string" && Boolean(u.trim()))
+    : [];
+  const primaryFallback =
     (typeof row.image_url === "string" && row.image_url.trim()) ||
     (typeof __imageUrl === "string" && __imageUrl.trim()) ||
     undefined;
+  const resolvedImages = rawImageList.length
+    ? rawImageList
+    : primaryFallback
+      ? [primaryFallback]
+      : [];
+  const resolvedImageUrl = resolvedImages[0] || undefined;
 
   return {
     id: row.id,
@@ -100,6 +109,7 @@ export function mapProductFromDb(row: any): Product {
     illustrationType: row.illustration_type || "whey-jar",
     accentColor: row.accent_color || "#2E9E6B",
     imageUrl: resolvedImageUrl,
+    images: resolvedImages.length ? resolvedImages : undefined,
     badgeText: row.badge_text || undefined,
     soldCount: Number(row.sold_count || 0),
     createdAt: row.created_at || new Date().toISOString(),
@@ -245,10 +255,17 @@ export function mapCategoryToDb(c: Category) {
 }
 
 export function mapProductToDb(p: Product) {
-  const trimmedImage = p.imageUrl?.trim();
+  const imageList = Array.from(
+    new Set(
+      [...(p.images || []), p.imageUrl]
+        .map((u) => (typeof u === "string" ? u.trim() : ""))
+        .filter(Boolean)
+    )
+  );
   const nutritionWithImage = {
     ...(p.nutritionFacts || {}),
-    ...(trimmedImage ? { __imageUrl: trimmedImage } : {}),
+    ...(imageList[0] ? { __imageUrl: imageList[0] } : {}),
+    ...(imageList.length > 0 ? { __images: imageList } : {}),
   };
 
   return {
