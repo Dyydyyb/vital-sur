@@ -32,16 +32,16 @@ export function ProductCard({ product }: ProductCardProps) {
   };
 
   return (
-    <article className="group relative flex flex-col w-full min-w-0 overflow-hidden rounded-card-lg bg-white border border-brand-border/80 p-4 shadow-soft transition-all duration-300 ease-natural hover:-translate-y-1 hover:shadow-soft-md hover:border-brand-green/40">
+    <article className="group relative flex flex-col w-full min-w-0 overflow-hidden rounded-card-lg bg-white border border-brand-border/80 p-2.5 sm:p-4 shadow-soft transition-all duration-300 ease-natural hover:-translate-y-1 hover:shadow-soft-md hover:border-brand-green/40">
       {/* Insignias superiores */}
-      <div className="absolute top-6 left-6 right-6 z-10 flex items-center justify-between gap-2 pointer-events-none">
+      <div className="absolute top-3.5 left-3.5 right-3.5 sm:top-6 sm:left-6 sm:right-6 z-10 flex items-center justify-between gap-1.5 pointer-events-none">
         {hasDiscount ? (
-          <span className="inline-flex items-center gap-1 rounded-pill bg-brand-green px-3 py-1 text-[11px] font-bold text-white shadow-sm">
+          <span className="inline-flex items-center gap-1 rounded-pill bg-brand-green px-2 sm:px-3 py-0.5 sm:py-1 text-[10px] sm:text-[11px] font-bold text-white shadow-sm">
             -{discountPercent}% OFF
           </span>
         ) : product.badgeText ? (
-          <span className="inline-flex items-center gap-1 rounded-pill bg-brand-green-soft px-3 py-1 text-[11px] font-bold text-brand-green-dark border border-brand-green/20">
-            <Sparkles className="h-3 w-3" strokeWidth={2} />
+          <span className="inline-flex items-center gap-1 rounded-pill bg-brand-green-soft px-2 sm:px-3 py-0.5 sm:py-1 text-[10px] sm:text-[11px] font-bold text-brand-green-dark border border-brand-green/20">
+            <Sparkles className="h-2.5 w-2.5 sm:h-3 sm:w-3" strokeWidth={2} />
             {product.badgeText}
           </span>
         ) : (
@@ -49,7 +49,7 @@ export function ProductCard({ product }: ProductCardProps) {
         )}
 
         {product.stock <= product.minStock && product.stock > 0 && (
-          <span className="rounded-pill bg-brand-blue-light px-2.5 py-1 text-[11px] font-semibold text-brand-blue-dark">
+          <span className="rounded-pill bg-brand-blue-light px-2 py-0.5 sm:px-2.5 sm:py-1 text-[10px] sm:text-[11px] font-semibold text-brand-blue-dark">
             Últimas {product.stock} u.
           </span>
         )}
@@ -58,13 +58,13 @@ export function ProductCard({ product }: ProductCardProps) {
       {/* Imagen del producto o ilustración vectorial del envase */}
       <Link
         href={`/productos/${product.slug}`}
-        className={`relative mb-4 block aspect-square w-full overflow-hidden rounded-card bg-brand-surface transition-colors duration-300 group-hover:bg-brand-surfaceAlt/70 ${
-          product.imageUrl ? "p-0" : "flex items-center justify-center p-5"
+        className={`relative mb-3 sm:mb-4 block aspect-square w-full overflow-hidden rounded-card bg-brand-surface transition-colors duration-300 group-hover:bg-brand-surfaceAlt/70 ${
+          product.imageUrl ? "p-0" : "flex items-center justify-center p-3 sm:p-5"
         }`}
       >
         <div
           className={`transition-transform duration-300 ease-natural group-hover:scale-105 ${
-            product.imageUrl ? "h-full w-full" : "h-44 w-44"
+            product.imageUrl ? "h-full w-full" : "h-32 w-32 sm:h-44 sm:w-44"
           }`}
         >
           <ProductVectorArt
@@ -90,30 +90,30 @@ export function ProductCard({ product }: ProductCardProps) {
             <span>{product.sizes[0]}</span>
           </div>
 
-          <Link href={`/productos/${product.slug}`} className="mt-1.5 block">
-            <h3 className="font-display text-base font-bold text-brand-ink line-clamp-2 group-hover:text-brand-green transition-colors duration-200">
+          <Link href={`/productos/${product.slug}`} className="mt-1 block">
+            <h3 className="font-display text-sm sm:text-base font-bold text-brand-ink line-clamp-2 group-hover:text-brand-green transition-colors duration-200">
               {product.name}
             </h3>
           </Link>
 
-          <p className="mt-1.5 text-xs text-brand-ink-muted line-clamp-2 leading-relaxed">
+          <p className="mt-1 hidden sm:line-clamp-2 text-xs text-brand-ink-muted leading-relaxed">
             {product.shortDescription}
           </p>
         </div>
 
-        <div className="mt-4 pt-3 border-t border-brand-border/60">
-          <div className="flex items-baseline justify-between gap-2">
+        <div className="mt-3 sm:mt-4 pt-2.5 sm:pt-3 border-t border-brand-border/60">
+          <div className="flex items-baseline justify-between gap-1.5">
             <div>
               {hasDiscount && (
-                <span className="block text-xs font-medium text-brand-ink-subtle line-through">
+                <span className="block text-[10px] sm:text-xs font-medium text-brand-ink-subtle line-through">
                   {formatARS(product.price)}
                 </span>
               )}
-              <span className="font-display text-xl font-extrabold text-brand-ink">
+              <span className="font-display text-base sm:text-xl font-extrabold text-brand-ink">
                 {formatARS(finalPrice)}
               </span>
             </div>
-            <span className="text-[11px] font-medium text-brand-green-dark bg-brand-green-soft/70 px-2.5 py-0.5 rounded-pill">
+            <span className="hidden sm:inline-block text-[11px] font-medium text-brand-green-dark bg-brand-green-soft/70 px-2.5 py-0.5 rounded-pill">
               Sin TACC
             </span>
           </div>

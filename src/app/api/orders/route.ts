@@ -165,12 +165,14 @@ export async function POST(req: NextRequest) {
       id: `ord-${Date.now()}`,
       orderNumber,
       status: paymentMethod === "mercado_pago" ? "pagado" : "pago_pendiente",
-      paymentMethod,
+      paymentMethod: paymentMethod || "whatsapp",
       paymentReference:
         paymentReference ||
         (paymentMethod === "mercado_pago"
           ? `MP-${Date.now()}`
-          : `TRF-${Date.now()}`),
+          : paymentMethod === "transferencia"
+            ? `TRF-${Date.now()}`
+            : `WA-${Date.now()}`),
       subtotal,
       discount,
       couponCode: appliedCouponCode,

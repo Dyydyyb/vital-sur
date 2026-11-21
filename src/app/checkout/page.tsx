@@ -5,16 +5,13 @@ import Link from "next/link";
 import {
   CheckCircle2,
   Truck,
-  CreditCard,
-  Landmark,
   ShieldCheck,
   ArrowLeft,
-  Copy,
-  Check,
   Package,
 } from "lucide-react";
 import { StoreHeader } from "@/components/store/StoreHeader";
 import { StoreFooter } from "@/components/store/StoreFooter";
+import { WhatsAppSvg } from "@/components/brand/CategoryIcon";
 import { useVitalSur } from "@/context/VitalSurContext";
 import { formatARS, ARGENTINA_PROVINCES } from "@/lib/format";
 import { Order, PaymentMethod } from "@/lib/types";
@@ -44,12 +41,35 @@ export default function CheckoutPage() {
   const [shippingPostalCode, setShippingPostalCode] = useState("1888");
   const [shippingNotes, setShippingNotes] = useState("");
 
-  const [paymentMethod, setPaymentMethod] =
-    useState<PaymentMethod>("mercado_pago");
-  const [mpCardLast4, setMpCardLast4] = useState("4509");
+  const [paymentMethod] = useState<PaymentMethod>("whatsapp");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [completedOrder, setCompletedOrder] = useState<Order | null>(null);
-  const [copiedAlias, setCopiedAlias] = useState(false);
+
+  const buildWhatsAppOrderUrl = (order: Order) => {
+    const phoneDigits = (db.settings.whatsappNumber || "5491134062942").replace(/\D/g, "");
+    const lines = [
+      `Hola Vital Sur! Quiero finalizar mi pedido *#${order.orderNumber}*`,
+      ``,
+      `*Cliente:* ${order.customerName}`,
+      `*DNI:* ${order.customerDni}`,
+      `*Envío:* ${order.shippingAddress}, ${order.shippingCity} (${order.shippingProvince}, CP ${order.shippingPostalCode})`,
+      ``,
+      `*Productos:*`,
+      ...order.items.map(
+        (it) =>
+          `• ${it.quantity}x ${it.productName} (${it.flavor}, ${it.size}) - ${formatARS(it.unitPrice * it.quantity)}`
+      ),
+      ``,
+      `*Subtotal:* ${formatARS(order.subtotal)}`,
+      order.discount > 0 ? `*Descuento:* -${formatARS(order.discount)}` : null,
+      `*Envío (${db.settings.shippingCarrier}):* ${order.shippingCost === 0 ? "GRATIS ($0)" : formatARS(order.shippingCost)}`,
+      `*Total a convenir:* ${formatARS(order.total)}`,
+    ]
+      .filter((line): line is string => line !== null)
+      .join("\n");
+
+    return `https://wa.me/${phoneDigits}?text=${encodeURIComponent(lines)}`;
+  };
 
   const handleFillSampleData = () => {
     setCustomerName("Federico Nicolás Quiroga");
@@ -63,39 +83,13 @@ export default function CheckoutPage() {
     setShippingNotes("Entregar por la tarde, timbre 3B.");
   };
 
-  const handleCopyAlias = () => {
-    try {
-      navigator.clipboard.writeText(db.settings.bankAlias);
-      setCopiedAlias(true);
-      setTimeout(() => setCopiedAlias(false), 2000);
-    } catch {
-      // Ignorar
-    }
-  };
-
   const handleSubmitOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     if (cart.length === 0) return;
 
     setIsSubmitting(true);
     try {
-      let paymentReference = `TRF-${Date.now().toString().slice(-6)}`;
-
-      if (paymentMethod === "mercado_pago") {
-        const mpRes = await fetch("/api/mercadopago", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            items: cart,
-            total: cartTotal,
-            payer: { name: customerName, email: customerEmail },
-          }),
-        });
-        if (mpRes.ok) {
-          const mpData = await mpRes.json();
-          paymentReference = mpData.paymentReference || `MP-TEST-${mpCardLast4}`;
-        }
-      }
+      const paymentReference = `WA-${Date.now().toString().slice(-6)}`;
 
       const created = await createOrder({
         customerName,
@@ -109,15 +103,19 @@ export default function CheckoutPage() {
         shippingNotes,
         paymentMethod,
         paymentReference,
-        initialStatus:
-          paymentMethod === "mercado_pago" ? "pagado" : "pago_pendiente",
+        initialStatus: "pago_pendiente",
       });
 
       setCompletedOrder(created);
       showToast(
-        `¡Pedido #${created.orderNumber} confirmado!`,
-        "Ya ingresó en tiempo real al panel de administración de Vital Sur."
+        `¡Pedido #${created.orderNumber} registrado!`,
+        "Ahora finalizá el pago y coordinación por WhatsApp."
       );
+      try {
+        window.open(buildWhatsAppOrderUrl(created), "_blank", "noopener,noreferrer");
+      } catch {
+        // Si el navegador bloquea popups, el botón directo en pantalla permite abrir WhatsApp
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -157,9 +155,7 @@ export default function CheckoutPage() {
               <div className="flex justify-between border-b border-brand-border pb-2.5">
                 <span className="text-brand-ink-muted">Método de Pago:</span>
                 <strong className="text-brand-ink">
-                  {completedOrder.paymentMethod === "mercado_pago"
-                    ? `Mercado Pago Modo Prueba (${completedOrder.paymentReference})`
-                    : `Transferencia Bancaria (${db.settings.bankAlias})`}
+                  A convenir en WhatsApp
                 </strong>
               </div>
               <div className="flex justify-between border-b border-brand-border pb-2.5">
@@ -189,18 +185,21 @@ export default function CheckoutPage() {
             </div>
 
             <div className="flex flex-wrap justify-center gap-3 pt-2">
+              <a
+                href={buildWhatsAppOrderUrl(completedOrder)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-pill bg-brand-green px-6 py-3 text-xs sm:text-sm font-bold text-white hover:bg-brand-green-dark transition-colors shadow-soft"
+              >
+                <WhatsAppSvg className="h-4 w-4" />
+                <span>Finalizar compra en WhatsApp</span>
+              </a>
               <Link
                 href="/productos"
-                className="inline-flex items-center gap-2 rounded-pill bg-brand-green px-6 py-3 text-xs sm:text-sm font-bold text-white hover:bg-brand-green-dark transition-colors"
+                className="inline-flex items-center gap-2 rounded-pill border border-brand-border bg-white px-6 py-3 text-xs sm:text-sm font-bold text-brand-ink hover:border-brand-green transition-colors"
               >
                 <ArrowLeft className="h-4 w-4" />
                 <span>Seguir explorando el catálogo</span>
-              </Link>
-              <Link
-                href="/"
-                className="inline-flex items-center gap-2 rounded-pill border border-brand-border bg-white px-6 py-3 text-xs sm:text-sm font-bold text-brand-ink hover:border-brand-green"
-              >
-                <span>Volver al inicio</span>
               </Link>
             </div>
           </div>
@@ -409,143 +408,25 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
-              {/* 3. Selección de Método de Pago */}
+              {/* 3. Método de Pago */}
               <div className="rounded-card-lg bg-white border border-brand-border p-6 shadow-soft space-y-4">
                 <h2 className="font-display text-base font-extrabold text-brand-ink border-b border-brand-border pb-3">
                   3. Método de Pago
                 </h2>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod("mercado_pago")}
-                    className={`flex items-start gap-3 rounded-card p-4 border text-left transition-all ${paymentMethod === "mercado_pago"
-                        ? "border-brand-green bg-brand-green-soft/50 shadow-sm"
-                        : "border-brand-border bg-brand-surface hover:border-brand-green/50"
-                      }`}
-                  >
-                    <CreditCard
-                      className="h-5 w-5 shrink-0 text-brand-blue-dark mt-0.5"
-                      strokeWidth={2}
-                    />
-                    <div>
-                      <p className="text-xs sm:text-sm font-extrabold text-brand-ink">
-                        Mercado Pago (Modo Prueba)
-                      </p>
-                      <p className="text-[11px] text-brand-ink-muted mt-0.5">
-                        Tarjetas de débito, crédito o dinero en cuenta con
-                        acreditación instantánea.
-                      </p>
-                    </div>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod("transferencia")}
-                    className={`flex items-start gap-3 rounded-card p-4 border text-left transition-all ${paymentMethod === "transferencia"
-                        ? "border-brand-green bg-brand-green-soft/50 shadow-sm"
-                        : "border-brand-border bg-brand-surface hover:border-brand-green/50"
-                      }`}
-                  >
-                    <Landmark
-                      className="h-5 w-5 shrink-0 text-brand-green mt-0.5"
-                      strokeWidth={2}
-                    />
-                    <div>
-                      <p className="text-xs sm:text-sm font-extrabold text-brand-ink">
-                        Transferencia Bancaria / CBU
-                      </p>
-                      <p className="text-[11px] text-brand-ink-muted mt-0.5">
-                        Transferí desde cualquier banco o billetera virtual a
-                        nuestra cuenta oficial.
-                      </p>
-                    </div>
-                  </button>
-                </div>
-
-                {/* Detalle según medio elegido */}
-                {paymentMethod === "mercado_pago" ? (
-                  <div className="rounded-card bg-brand-blue-light/60 border border-brand-blue p-4 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-extrabold text-brand-blue-dark">
-                        Sandbox de Prueba Mercado Pago Activo
-                      </span>
-                      <span className="rounded-pill bg-white px-2.5 py-0.5 text-[10px] font-bold text-brand-ink border border-brand-border">
-                        Clave: {db.settings.mpPublicKey.slice(0, 16)}...
-                      </span>
-                    </div>
-                    <p className="text-xs text-brand-ink-muted">
-                      Simulación de pago aprobado en entorno de pruebas: no se
-                      realizarán cargos reales.
+                <div className="flex items-start gap-3.5 rounded-card border border-brand-green bg-brand-green-soft/50 p-4 shadow-sm">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-green text-white">
+                    <WhatsAppSvg className="h-5 w-5" />
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm font-extrabold text-brand-ink">
+                      A convenir en WhatsApp
                     </p>
-                    <div className="flex items-center gap-3">
-                      <label className="text-xs font-bold text-brand-ink">
-                        Tarjeta de prueba:
-                      </label>
-                      <select
-                        value={mpCardLast4}
-                        onChange={(e) => setMpCardLast4(e.target.value)}
-                        className="rounded-pill border border-brand-border bg-white px-3 py-1.5 text-xs font-bold text-brand-ink"
-                      >
-                        <option value="4509">
-                          Visa Débito terminada en 4509 (APROBAR)
-                        </option>
-                        <option value="8821">
-                          Mastercard Crédito terminada en 8821 (APROBAR)
-                        </option>
-                        <option value="0012">
-                          Dinero en cuenta Mercado Pago (APROBAR)
-                        </option>
-                      </select>
-                    </div>
+                    <p className="text-xs text-brand-ink-muted leading-relaxed">
+                      Al confirmar tu pedido, se abrirá WhatsApp con el detalle completo de tu compra para coordinar el pago y el envío directamente con nuestro equipo.
+                    </p>
                   </div>
-                ) : (
-                  <div className="rounded-card bg-brand-surface border border-brand-border p-4 space-y-2.5 text-xs">
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-brand-ink-muted">
-                        Alias Bancario:
-                      </span>
-                      <div className="flex items-center gap-2">
-                        <strong className="font-display text-sm text-brand-green-dark">
-                          {db.settings.bankAlias}
-                        </strong>
-                        <button
-                          type="button"
-                          onClick={handleCopyAlias}
-                          className="inline-flex items-center gap-1 rounded-pill bg-white border border-brand-border px-2.5 py-1 text-[11px] font-bold text-brand-ink hover:border-brand-green"
-                        >
-                          {copiedAlias ? (
-                            <>
-                              <Check className="h-3 w-3 text-brand-green" />
-                              <span>Copiado</span>
-                            </>
-                          ) : (
-                            <>
-                              <Copy className="h-3 w-3" />
-                              <span>Copiar</span>
-                            </>
-                          )}
-                        </button>
-                      </div>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="font-bold text-brand-ink-muted">
-                        CBU / CVU:
-                      </span>
-                      <span className="font-mono font-bold text-brand-ink">
-                        {db.settings.bankCbu}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="font-bold text-brand-ink-muted">
-                        Titular:
-                      </span>
-                      <span className="font-semibold text-brand-ink">
-                        {db.settings.bankHolder}
-                      </span>
-                    </div>
-                  </div>
-                )}
+                </div>
               </div>
             </div>
 
@@ -620,10 +501,8 @@ export default function CheckoutPage() {
                   <ShieldCheck className="h-5 w-5" strokeWidth={2.2} />
                   <span>
                     {isSubmitting
-                      ? "Procesando tu pedido..."
-                      : paymentMethod === "mercado_pago"
-                        ? `Pagar ${formatARS(cartTotal)} con Mercado Pago`
-                        : `Confirmar Pedido por ${formatARS(cartTotal)}`}
+                      ? "Registrando tu pedido..."
+                      : `Finalizar compra en WhatsApp (${formatARS(cartTotal)})`}
                   </span>
                 </button>
               </div>

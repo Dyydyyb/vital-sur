@@ -9,7 +9,7 @@ export type OrderStatus =
   | "entregado"
   | "cancelado";
 
-export type PaymentMethod = "mercado_pago" | "transferencia";
+export type PaymentMethod = "whatsapp" | "mercado_pago" | "transferencia";
 
 export type CategoryIconName =
   | "dumbbell"

@@ -401,9 +401,11 @@ export function OrdersModule() {
                 <div className="pt-2 border-t border-brand-border/60 flex justify-between">
                   <span className="text-brand-ink-muted">Medio de pago:</span>
                   <strong className="text-brand-ink">
-                    {selectedOrder.paymentMethod === "mercado_pago"
-                      ? `Mercado Pago (${selectedOrder.paymentReference})`
-                      : `Transferencia (${selectedOrder.paymentReference})`}
+                    {selectedOrder.paymentMethod === "whatsapp"
+                      ? `A convenir en WhatsApp (${selectedOrder.paymentReference || "WA"})`
+                      : selectedOrder.paymentMethod === "mercado_pago"
+                        ? `Mercado Pago (${selectedOrder.paymentReference})`
+                        : `Transferencia (${selectedOrder.paymentReference})`}
                   </strong>
                 </div>
               </div>

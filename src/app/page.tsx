@@ -110,6 +110,7 @@ export default function HomePage() {
   const { db, showToast } = useVitalSur();
 
   const [selectedFeaturedCat, setSelectedFeaturedCat] = useState<string>("all");
+  const [homeVisibleCount, setHomeVisibleCount] = useState<number>(12);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [newsletterSubscribed, setNewsletterSubscribed] = useState(false);
@@ -159,21 +160,23 @@ export default function HomePage() {
 
   // Referencias para scrolls horizontales fluidos
   const categoriesScrollRef = useRef<HTMLDivElement | null>(null);
-  const productsScrollRef = useRef<HTMLDivElement | null>(null);
 
   const mainCategories = db.categories
     .filter((c) => c.parentId === null && c.active)
     .sort((a, b) => a.order - b.order);
 
   const activeProducts = db.products.filter((p) => p.active);
+  const hasFeaturedProducts = activeProducts.some((p) => p.featured);
 
-  const displayedProducts = activeProducts
-    .filter((p) =>
-      selectedFeaturedCat === "all"
+  const filteredFeaturedProducts = activeProducts.filter((p) =>
+    selectedFeaturedCat === "all"
+      ? hasFeaturedProducts
         ? p.featured
-        : p.categoryId === selectedFeaturedCat
-    )
-    .slice(0, 8);
+        : true
+      : p.categoryId === selectedFeaturedCat
+  );
+
+  const displayedProducts = filteredFeaturedProducts.slice(0, homeVisibleCount);
 
   // Autoplay suave del slider de testimonios (pausable en hover)
   useEffect(() => {
@@ -470,12 +473,15 @@ export default function HomePage() {
                 </h2>
               </div>
 
-              {/* Filtro rápido por pestañas tipo píldora + controles de slider */}
+              {/* Filtro rápido por pestañas tipo píldora */}
               <div className="flex flex-wrap items-center gap-2">
                 <div className="flex flex-wrap gap-1.5">
                   <button
                     type="button"
-                    onClick={() => setSelectedFeaturedCat("all")}
+                    onClick={() => {
+                      setSelectedFeaturedCat("all");
+                      setHomeVisibleCount(12);
+                    }}
                     className={`rounded-pill px-3.5 py-1.5 text-xs font-bold transition-all duration-200 ${selectedFeaturedCat === "all"
                         ? "bg-brand-green text-white shadow-sm"
                         : "bg-white text-brand-ink border border-brand-border hover:border-brand-green"
@@ -487,7 +493,10 @@ export default function HomePage() {
                     <button
                       key={cat.id}
                       type="button"
-                      onClick={() => setSelectedFeaturedCat(cat.id)}
+                      onClick={() => {
+                        setSelectedFeaturedCat(cat.id);
+                        setHomeVisibleCount(12);
+                      }}
                       className={`rounded-pill px-3.5 py-1.5 text-xs font-bold transition-all duration-200 ${selectedFeaturedCat === cat.id
                           ? "bg-brand-green text-white shadow-sm"
                           : "bg-white text-brand-ink border border-brand-border hover:border-brand-green"
@@ -497,43 +506,33 @@ export default function HomePage() {
                     </button>
                   ))}
                 </div>
-
-                <div className="hidden sm:flex items-center gap-1.5 pl-2">
-                  <button
-                    type="button"
-                    onClick={() => scrollContainer(productsScrollRef, "left")}
-                    aria-label="Desplazar productos hacia la izquierda"
-                    className="flex h-8 w-8 items-center justify-center rounded-full border border-brand-border bg-white text-brand-ink hover:border-brand-green hover:text-brand-green transition-colors"
-                  >
-                    <ChevronLeft className="h-4 w-4" strokeWidth={2.2} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => scrollContainer(productsScrollRef, "right")}
-                    aria-label="Desplazar productos hacia la derecha"
-                    className="flex h-8 w-8 items-center justify-center rounded-full border border-brand-border bg-white text-brand-ink hover:border-brand-green hover:text-brand-green transition-colors"
-                  >
-                    <ChevronRight className="h-4 w-4" strokeWidth={2.2} />
-                  </button>
-                </div>
               </div>
             </div>
 
-            {/* Carrusel horizontal en móviles y grilla adaptativa en desktop */}
+            {/* Grilla vertical de 2 columnas en móviles y hasta 4 columnas en desktop (máximo 12 iniciales) */}
             {displayedProducts.length > 0 ? (
-              <div
-                ref={productsScrollRef}
-                className="flex md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 overflow-x-auto md:overflow-visible no-scrollbar scroll-snap-x pb-2"
-              >
-                {displayedProducts.map((product) => (
-                  <div
-                    key={product.id}
-                    className="w-[270px] sm:w-[290px] md:w-auto min-w-0 shrink-0 scroll-snap-align-start"
-                  >
-                    <ProductCard product={product} />
+              <>
+                <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+                  {displayedProducts.map((product) => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
+                </div>
+
+                {homeVisibleCount < filteredFeaturedProducts.length && (
+                  <div className="mt-7 flex justify-center">
+                    <button
+                      type="button"
+                      onClick={() => setHomeVisibleCount((prev) => prev + 12)}
+                      className="inline-flex items-center gap-2 rounded-pill border border-brand-border bg-white px-6 py-2.5 text-xs sm:text-sm font-bold text-brand-ink shadow-soft hover:border-brand-green hover:text-brand-green transition-all active:scale-[0.98]"
+                    >
+                      <span>
+                        Cargar más ({filteredFeaturedProducts.length - homeVisibleCount} restantes)
+                      </span>
+                      <ChevronDown className="h-4 w-4 text-brand-green" strokeWidth={2.2} />
+                    </button>
                   </div>
-                ))}
-              </div>
+                )}
+              </>
             ) : (
               <div className="w-full rounded-card-lg bg-white border border-brand-border p-10 text-center space-y-3">
                 <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-brand-surface text-brand-green">

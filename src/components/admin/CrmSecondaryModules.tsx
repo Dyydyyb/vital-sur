@@ -561,9 +561,11 @@ export function SalesModule() {
                     </span>
                   </td>
                   <td className="py-3 px-4 font-semibold text-brand-ink">
-                    {sale.paymentMethod === "mercado_pago"
-                      ? "Mercado Pago"
-                      : "Transferencia"}
+                    {sale.paymentMethod === "whatsapp"
+                      ? "WhatsApp (a convenir)"
+                      : sale.paymentMethod === "mercado_pago"
+                        ? "Mercado Pago"
+                        : "Transferencia"}
                   </td>
                   <td className="py-3 px-4">
                     <span
